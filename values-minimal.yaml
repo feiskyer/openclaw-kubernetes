@@ -1,0 +1,235 @@
+# Minimal values for OpenClaw - suitable for testing and development.
+# This is a YAML-formatted file.
+# Use this file for local development, CI/CD testing, or quick evaluations.
+
+## @section Deployment Settings
+
+# -- Number of replicas for the OpenClaw gateway
+replicaCount: 1
+
+## @section Image Settings
+
+# -- Docker image configuration
+image:
+  # -- Image repository including registry
+  repository: ghcr.io/openclaw/openclaw
+  # -- Image tag (use latest for testing)
+  tag: "latest"
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+## @section Naming
+
+# -- String to override the default name
+nameOverride: ""
+# -- String to override the default fullname
+fullnameOverride: ""
+
+## @section Service Account
+
+# -- Service account configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use
+  name: ""
+
+## @section Pod Settings
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod security context (disabled for minimal setup)
+podSecurityContext: {}
+
+# -- Container security context (disabled for minimal setup)
+securityContext: {}
+
+## @section Service Settings
+
+# -- Service configuration
+service:
+  # -- Service type
+  type: ClusterIP
+  # -- Service port
+  port: 18789
+  # -- Target port on the container
+  targetPort: 18789
+  # -- Service annotations
+  annotations: {}
+
+## @section Ingress Settings
+
+# -- Ingress configuration
+ingress:
+  # -- Enable ingress
+  enabled: false
+  # -- Ingress class name
+  className: ""
+  # -- Additional annotations for the ingress
+  annotations: {}
+  # -- Ingress hosts
+  hosts: []
+  # -- TLS configuration
+  tls: []
+
+## @section Resource Settings
+
+# -- Resource requests and limits
+# No resource limits for minimal testing setup
+resources: {}
+
+## @section Autoscaling
+
+# -- Horizontal Pod Autoscaler configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+## @section Scheduling
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations for pod scheduling
+tolerations: []
+
+# -- Affinity rules for pod scheduling
+affinity: {}
+
+# -- Pod topology spread constraints
+topologySpreadConstraints: []
+
+## @section Persistence
+
+# -- Persistent Volume configuration
+persistence:
+  # -- Enable persistent storage
+  # Disabled for minimal setup - uses emptyDir instead
+  enabled: false
+  # -- Storage class name (empty for default)
+  storageClass: ""
+  # -- Access mode for the PVC
+  accessMode: ReadWriteOnce
+  # -- Size of the persistent volume
+  size: 1Gi
+  # -- Existing PVC to use
+  existingClaim: ""
+  # -- Annotations for the PVC
+  annotations: {}
+  # -- Retain policy for the PVC
+  retainPolicy: Retain
+  # -- Use StatefulSet volumeClaimTemplates
+  useStatefulSetVolumeClaim: true
+
+## @section OpenClaw Configuration
+
+# -- OpenClaw configuration
+openclaw:
+  # -- OpenClaw gateway configuration (openclaw.json content)
+  config:
+    gateway:
+      port: 18789
+      host: "0.0.0.0"
+    logging:
+      level: "info"
+
+## @section Secrets
+
+# -- Secrets configuration
+secrets:
+  # -- Use existing secret instead of creating one
+  existingSecret: ""
+  # -- Anthropic API key
+  anthropicApiKey: ""
+  # -- OpenAI API key
+  openaiApiKey: ""
+  # -- Discord bot token
+  discordBotToken: ""
+  # -- Telegram bot token
+  telegramBotToken: ""
+  # -- Slack bot token
+  slackBotToken: ""
+  # -- Slack app token
+  slackAppToken: ""
+  # -- Gateway authentication token
+  openclawGatewayToken: ""
+
+## @section Probes
+
+# -- Liveness probe configuration
+livenessProbe:
+  enabled: true
+  exec:
+    command:
+      - node
+      - dist/index.js
+      - health
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 6
+  successThreshold: 1
+
+# -- Readiness probe configuration
+readinessProbe:
+  enabled: true
+  exec:
+    command:
+      - node
+      - dist/index.js
+      - health
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+# -- Startup probe configuration
+startupProbe:
+  enabled: false
+  exec:
+    command:
+      - node
+      - dist/index.js
+      - health
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+  successThreshold: 1
+
+## @section Extra Configuration
+
+# -- Extra environment variables
+extraEnv: []
+
+# -- Extra environment variables from secrets/configmaps
+extraEnvFrom: []
+
+# -- Extra volume mounts for the container
+extraVolumeMounts: []
+
+# -- Extra volumes for the pod
+extraVolumes: []
+
+# -- Init containers
+initContainers: []
+
+# -- Sidecar containers
+sidecars: []
+
+## @section Pod Disruption Budget
+
+# -- Pod Disruption Budget configuration
+podDisruptionBudget:
+  # -- Enable Pod Disruption Budget
+  enabled: false

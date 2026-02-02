@@ -1,0 +1,17 @@
+apiVersion: v2
+appVersion: latest
+description: A Helm chart for OpenClaw (Clawdbot) - Personal AI Assistant Gateway
+home: https://github.com/openclaw/openclaw-kubernetes
+keywords:
+- openclaw
+- clawdbot
+- moltbot
+- ai
+- assistant
+- gateway
+- websocket
+name: openclaw
+sources:
+- https://github.com/openclaw/openclaw-kubernetes
+type: application
+version: 0.1.0

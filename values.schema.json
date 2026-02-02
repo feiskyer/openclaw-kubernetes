@@ -1,0 +1,595 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "OpenClaw Helm Chart Values Schema",
+  "description": "JSON Schema for validating OpenClaw Helm chart values",
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "description": "Number of replicas. Must be 1 for StatefulSet mode since OpenClaw is a single-instance app",
+      "default": 1,
+      "enum": [1]
+    },
+    "image": {
+      "type": "object",
+      "description": "Image configuration",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Image repository including registry (e.g., ghcr.io/openclaw/openclaw)",
+          "default": "ghcr.io/openclaw/openclaw"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Image tag (defaults to Chart appVersion if not set)",
+          "default": ""
+        },
+        "pullPolicy": {
+          "type": "string",
+          "description": "Image pull policy",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "IfNotPresent"
+        }
+      },
+      "required": ["repository", "pullPolicy"]
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "description": "Image pull secrets for private registries",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "String to override the default name",
+      "default": ""
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "String to override the default fullname",
+      "default": ""
+    },
+    "serviceAccount": {
+      "type": "object",
+      "description": "Service account configuration",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Create service account",
+          "default": true
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Service account annotations",
+          "default": {}
+        },
+        "name": {
+          "type": "string",
+          "description": "Service account name (generated if empty)",
+          "default": ""
+        }
+      }
+    },
+    "podAnnotations": {
+      "type": "object",
+      "description": "Pod annotations",
+      "default": {}
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Pod security context",
+      "default": {
+        "fsGroup": 1000
+      }
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Container security context",
+      "default": {
+        "capabilities": {
+          "drop": ["ALL"]
+        },
+        "readOnlyRootFilesystem": false,
+        "runAsNonRoot": true,
+        "runAsUser": 1000
+      }
+    },
+    "service": {
+      "type": "object",
+      "description": "Service configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Service type",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"],
+          "default": "ClusterIP"
+        },
+        "port": {
+          "type": "integer",
+          "description": "Service port",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 18789
+        },
+        "targetPort": {
+          "type": "integer",
+          "description": "Target port on the container",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 18789
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Service annotations",
+          "default": {}
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "description": "Ingress configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable ingress",
+          "default": false
+        },
+        "className": {
+          "type": "string",
+          "description": "Ingress class name",
+          "default": ""
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Ingress annotations",
+          "default": {
+            "nginx.ingress.kubernetes.io/proxy-read-timeout": "3600",
+            "nginx.ingress.kubernetes.io/proxy-send-timeout": "3600",
+            "nginx.ingress.kubernetes.io/proxy-http-version": "1.1",
+            "nginx.ingress.kubernetes.io/proxy-buffering": "off"
+          }
+        },
+        "hosts": {
+          "type": "array",
+          "description": "Ingress hosts",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "pathType": {
+                      "type": "string",
+                      "enum": ["Prefix", "Exact", "ImplementationSpecific"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tls": {
+          "type": "array",
+          "description": "TLS configuration",
+          "items": {
+            "type": "object",
+            "properties": {
+              "secretName": {
+                "type": "string"
+              },
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": []
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "description": "Resource requests and limits (cpu/memory)",
+      "properties": {
+        "limits": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": ["string", "integer"],
+              "description": "CPU limit",
+              "default": "1000m"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory limit",
+              "default": "1Gi"
+            }
+          }
+        },
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": ["string", "integer"],
+              "description": "CPU request",
+              "default": "250m"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory request",
+              "default": "512Mi"
+            }
+          }
+        }
+      }
+    },
+    "autoscaling": {
+      "type": "object",
+      "description": "Horizontal Pod Autoscaler configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable autoscaling",
+          "default": false
+        },
+        "minReplicas": {
+          "type": "integer",
+          "description": "Minimum number of replicas",
+          "default": 1
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "description": "Maximum number of replicas",
+          "default": 3
+        },
+        "targetCPUUtilizationPercentage": {
+          "type": "integer",
+          "description": "Target CPU utilization percentage",
+          "default": 80
+        },
+        "targetMemoryUtilizationPercentage": {
+          "type": "integer",
+          "description": "Target Memory utilization percentage",
+          "default": 80
+        },
+        "metrics": {
+          "type": "array",
+          "description": "Custom metrics for HPA",
+          "default": []
+        },
+        "behavior": {
+          "type": "object",
+          "description": "Scaling behavior configuration",
+          "default": {}
+        }
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node selector for pod scheduling",
+      "default": {}
+    },
+    "tolerations": {
+      "type": "array",
+      "description": "Tolerations for pod scheduling",
+      "default": []
+    },
+    "affinity": {
+      "type": "object",
+      "description": "Affinity rules for pod scheduling",
+      "default": {}
+    },
+    "topologySpreadConstraints": {
+      "type": "array",
+      "description": "Pod topology spread constraints",
+      "default": []
+    },
+    "extraEnv": {
+      "type": "array",
+      "description": "Extra environment variables",
+      "default": []
+    },
+    "extraEnvFrom": {
+      "type": "array",
+      "description": "Extra environment variables from secrets/configmaps",
+      "default": []
+    },
+    "extraVolumeMounts": {
+      "type": "array",
+      "description": "Extra volume mounts for the container",
+      "default": []
+    },
+    "extraVolumes": {
+      "type": "array",
+      "description": "Extra volumes for the pod",
+      "default": []
+    },
+    "initContainers": {
+      "type": "array",
+      "description": "Init containers",
+      "default": []
+    },
+    "sidecars": {
+      "type": "array",
+      "description": "Sidecar containers",
+      "default": []
+    },
+    "persistence": {
+      "type": "object",
+      "description": "Persistent Volume configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable persistent storage",
+          "default": true
+        },
+        "storageClass": {
+          "type": "string",
+          "description": "Storage class name (empty for default)",
+          "default": ""
+        },
+        "accessMode": {
+          "type": "string",
+          "description": "Access mode for the PVC",
+          "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod"],
+          "default": "ReadWriteOnce"
+        },
+        "size": {
+          "type": "string",
+          "description": "Size of the persistent volume",
+          "default": "10Gi"
+        },
+        "existingClaim": {
+          "type": "string",
+          "description": "Existing PVC to use (if set, StatefulSet will use this instead of creating new PVCs)",
+          "default": ""
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations for the PVC",
+          "default": {}
+        },
+        "retainPolicy": {
+          "type": "string",
+          "description": "Retain policy for the PVC",
+          "enum": ["Retain", "Delete", "Recycle"],
+          "default": "Retain"
+        },
+        "useStatefulSetVolumeClaim": {
+          "type": "boolean",
+          "description": "Use StatefulSet volumeClaimTemplates",
+          "default": true
+        }
+      }
+    },
+    "openclaw": {
+      "type": "object",
+      "description": "OpenClaw configuration",
+      "properties": {
+        "config": {
+          "type": "object",
+          "description": "OpenClaw gateway configuration (openclaw.json content)",
+          "properties": {
+            "gateway": {
+              "type": "object",
+              "properties": {
+                "port": {
+                  "type": "integer",
+                  "default": 18789
+                },
+                "host": {
+                  "type": "string",
+                  "default": "0.0.0.0"
+                }
+              }
+            },
+            "logging": {
+              "type": "object",
+              "properties": {
+                "level": {
+                  "type": "string",
+                  "enum": ["debug", "info", "warn", "error"],
+                  "default": "info"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "description": "Secrets configuration for API keys",
+      "properties": {
+        "existingSecret": {
+          "type": "string",
+          "description": "Use existing secret instead of creating one",
+          "default": ""
+        },
+        "anthropicApiKey": {
+          "type": "string",
+          "description": "Anthropic API key"
+        },
+        "openaiApiKey": {
+          "type": "string",
+          "description": "OpenAI API key"
+        },
+        "discordBotToken": {
+          "type": "string",
+          "description": "Discord bot token"
+        },
+        "telegramBotToken": {
+          "type": "string",
+          "description": "Telegram bot token"
+        },
+        "slackBotToken": {
+          "type": "string",
+          "description": "Slack bot token"
+        },
+        "slackAppToken": {
+          "type": "string",
+          "description": "Slack app token"
+        },
+        "openclawGatewayToken": {
+          "type": "string",
+          "description": "Gateway authentication token"
+        }
+      }
+    },
+    "livenessProbe": {
+      "type": "object",
+      "description": "Liveness probe configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "exec": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": ["node", "dist/index.js", "health"]
+            }
+          }
+        },
+        "initialDelaySeconds": {
+          "type": "integer",
+          "default": 30
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "default": 30
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "default": 10
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "default": 3
+        },
+        "successThreshold": {
+          "type": "integer",
+          "default": 1
+        }
+      }
+    },
+    "readinessProbe": {
+      "type": "object",
+      "description": "Readiness probe configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "exec": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": ["node", "dist/index.js", "health"]
+            }
+          }
+        },
+        "initialDelaySeconds": {
+          "type": "integer",
+          "default": 10
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "default": 10
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "default": 5
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "default": 3
+        },
+        "successThreshold": {
+          "type": "integer",
+          "default": 1
+        }
+      }
+    },
+    "startupProbe": {
+      "type": "object",
+      "description": "Startup probe configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "exec": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": ["node", "dist/index.js", "health"]
+            }
+          }
+        },
+        "initialDelaySeconds": {
+          "type": "integer",
+          "default": 10
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "default": 10
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "default": 5
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "default": 30
+        },
+        "successThreshold": {
+          "type": "integer",
+          "default": 1
+        }
+      }
+    },
+    "podDisruptionBudget": {
+      "type": "object",
+      "description": "Pod Disruption Budget configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "minAvailable": {
+          "type": ["integer", "string"],
+          "description": "Minimum available pods (number or percentage)"
+        },
+        "maxUnavailable": {
+          "type": ["integer", "string"],
+          "description": "Maximum unavailable pods (number or percentage)"
+        }
+      }
+    }
+  }
+}

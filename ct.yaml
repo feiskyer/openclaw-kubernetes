@@ -1,0 +1,63 @@
+# Chart Testing configuration for OpenClaw Helm chart
+# This file configures the chart-testing tool (ct) for CI/CD pipelines
+# Reference: https://github.com/helm/chart-testing/blob/main/doc/ct.md
+
+# Remote repository to target for testing
+remote: origin
+
+# Target branches for testing (pull requests against these branches will be tested)
+target-branch: main
+
+# Chart directories to scan for changes
+chart-dirs:
+  - charts
+
+# Specific charts to test (empty means all charts in chart-dirs)
+charts:
+  - openclaw
+
+# Charts to exclude from testing
+excluded-charts: []
+
+# Additional Helm arguments for install/upgrade
+check-version-increment: true
+
+# Linting configuration
+lint-conf: charts/openclaw/lintconf.yaml
+
+# Chart schema validation
+chart-yaml-schema: charts/openclaw/chart_schema.yaml
+
+# Helm extra arguments for linting
+helm-extra-args: --timeout 600s
+
+# Namespace to install releases into
+namespace: openclaw-test
+
+# Release name for test releases
+release-label: openclaw
+
+# Skip version check for specific charts (development only)
+skip-missing-values: true
+
+# Values files to test against
+upgrade: true
+skip-tests: false
+
+# Debug output
+debug: false
+
+# Validate maintainers
+validate-maintainers: true
+
+# Validate chart schema
+validate-chart-schema: true
+
+# Validate YAML schema
+validate-yaml: true
+
+# Additional values files for testing (relative to chart directory)
+additional-helm-lint-args: "--strict"
+
+# Skip cleanup of test releases (for debugging)
+skip-clean-up: false

@@ -1,0 +1,32 @@
+{{/*
+  PVC template for OpenClaw.
+  Note: When using StatefulSet with volumeClaimTemplates (the default), this PVC is not created.
+  This PVC is only created when:
+  1. NOT using StatefulSet volumeClaimTemplates (persistence.useStatefulSetVolumeClaim = false)
+  2. persistence.enabled = true
+  3. persistence.existingClaim is not set (otherwise we'd use the existing claim)
+
+  Currently, StatefulSet is used with volumeClaimTemplates, so this file is effectively a no-op.
+  It's kept here for potential future use with Deployments.
+*/}}
+{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) (not .Values.persistence.useStatefulSetVolumeClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "openclaw.pvcName" . }}
+  labels:
+    {{- include "openclaw.labels" . | nindent 4 }}
+  {{- with .Values.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.accessMode }}
+  {{- if .Values.persistence.storageClass }}
+  storageClassName: {{ .Values.persistence.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+{{- end }}

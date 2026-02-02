@@ -1,0 +1,260 @@
+# Default values for openclaw.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Number of replicas for the OpenClaw gateway
+# Note: Typically should be 1 as OpenClaw maintains state
+replicaCount: 1
+
+# -- Docker image configuration
+image:
+  # -- Image repository
+  repository: ghcr.io/openclaw/openclaw
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image tag (defaults to chart appVersion if not set)
+  tag: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- String to override the default name
+nameOverride: ""
+
+# -- String to override the default fullname
+fullnameOverride: ""
+
+# -- Service account configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod security context
+podSecurityContext:
+  fsGroup: 1000
+
+# -- Container security context
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# -- Service configuration
+service:
+  # -- Service type
+  type: ClusterIP
+  # -- Service port
+  port: 18789
+  # -- Target port on the container
+  targetPort: 18789
+  # -- Service annotations
+  annotations: {}
+
+# -- Ingress configuration
+ingress:
+  # -- Enable ingress
+  enabled: false
+  # -- Ingress class name
+  className: ""
+  # -- Additional annotations for the ingress
+  # WebSocket support annotations for common ingress controllers
+  annotations:
+    # nginx ingress controller
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    # Enable WebSocket upgrade
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+    # traefik ingress controller (alternative)
+    # traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # traefik.ingress.kubernetes.io/router.tls: "true"
+  # -- Ingress hosts
+  hosts:
+    - host: openclaw.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  # -- TLS configuration
+  tls: []
+  #  - secretName: openclaw-tls
+  #    hosts:
+  #      - openclaw.local
+
+# -- Resource requests and limits
+resources:
+  # -- Resource limits
+  limits:
+    cpu: 2000m
+    memory: 8Gi
+  # -- Resource requests
+  requests:
+    cpu: 250m
+    memory: 1Gi
+
+# -- Horizontal Pod Autoscaler configuration
+autoscaling:
+  # -- Enable HPA
+  enabled: false
+  # -- Minimum number of replicas
+  minReplicas: 1
+  # -- Maximum number of replicas
+  maxReplicas: 3
+  # -- Target CPU utilization percentage
+  targetCPUUtilizationPercentage: 80
+  # -- Target memory utilization percentage
+  targetMemoryUtilizationPercentage: 80
+  # -- Custom metrics for HPA
+  metrics: []
+  # -- Scaling behavior configuration
+  behavior: {}
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations for pod scheduling
+tolerations: []
+
+# -- Affinity rules for pod scheduling
+affinity: {}
+
+# -- Pod topology spread constraints
+topologySpreadConstraints: []
+
+# -- Extra environment variables
+extraEnv: []
+  # - name: EXTRA_VAR
+  #   value: "extra-value"
+
+# -- Extra environment variables from secrets/configmaps
+extraEnvFrom: []
+  # - secretRef:
+  #     name: my-secret
+
+# -- Extra volume mounts for the container
+extraVolumeMounts: []
+  # - name: extra-volume
+  #   mountPath: /extra
+
+# -- Extra volumes for the pod
+extraVolumes: []
+  # - name: extra-volume
+  #   persistentVolumeClaim:
+  #     claimName: extra-pvc
+
+# -- Init containers
+initContainers: []
+
+# -- Sidecar containers
+sidecars: []
+
+# -- Persistent Volume configuration
+persistence:
+  # -- Enable persistent storage
+  enabled: true
+  # -- Storage class name (empty for default)
+  storageClass: ""
+  # -- Access mode for the PVC
+  accessMode: ReadWriteOnce
+  # -- Size of the persistent volume
+  size: 10Gi
+  # -- Existing PVC to use (if set, StatefulSet will use this instead of creating new PVCs)
+  existingClaim: ""
+  # -- Annotations for the PVC
+  annotations: {}
+  # -- Retain policy for the PVC
+  retainPolicy: Retain
+  # -- Use StatefulSet volumeClaimTemplates (default: true)
+  # When true, StatefulSet manages PVC creation via volumeClaimTemplates
+  # When false, a separate PVC is created and referenced by StatefulSet
+  useStatefulSetVolumeClaim: true
+
+# -- OpenClaw configuration
+openclaw:
+  # -- OpenClaw gateway configuration (openclaw.json content)
+  config:
+    # -- Gateway server configuration
+    gateway:
+      port: 18789
+    logging:
+      level: "info"
+
+
+# -- Secrets configuration
+secrets:
+  # -- Use existing secret instead of creating one
+  existingSecret: ""
+  # -- API Keys
+  anthropicApiKey: ""
+  openaiApiKey: ""
+  # -- Messaging channel tokens
+  discordBotToken: ""
+  telegramBotToken: ""
+  slackBotToken: ""
+  slackAppToken: ""
+  # -- Gateway authentication token
+  openclawGatewayToken: ""
+
+# -- Liveness probe configuration
+livenessProbe:
+  enabled: true
+  exec:
+    command:
+      - node
+      - dist/index.js
+      - health
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+  successThreshold: 1
+
+# -- Readiness probe configuration
+readinessProbe:
+  enabled: true
+  exec:
+    command:
+      - node
+      - dist/index.js
+      - health
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+# -- Startup probe configuration
+startupProbe:
+  enabled: false
+  exec:
+    command:
+      - node
+      - dist/index.js
+      - health
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+  successThreshold: 1
+
+# -- Pod Disruption Budget configuration
+podDisruptionBudget:
+  # -- Enable Pod Disruption Budget
+  enabled: false
+  # -- Minimum available pods (number or percentage)
+  minAvailable: 1
+  # -- Maximum unavailable pods (number or percentage)
+  # maxUnavailable: 1
