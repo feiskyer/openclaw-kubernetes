@@ -24,7 +24,7 @@ check-version-increment: true
 
 
 # Helm extra arguments for linting
-helm-extra-args: --timeout 600s
+helm-extra-args: --timeout 600s --set secrets.openclawGatewayToken=lint-token
 
 # Namespace to install releases into
 namespace: openclaw-test
@@ -52,7 +52,7 @@ validate-chart-schema: true
 validate-yaml: true
 
 # Additional values files for testing (relative to chart directory)
-additional-helm-lint-args: "--strict"
+additional-helm-lint-args: "--strict --set secrets.openclawGatewayToken=lint-token"
 
 # Skip cleanup of test releases (for debugging)
 skip-clean-up: false

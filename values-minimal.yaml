@@ -16,7 +16,7 @@ image:
   # -- Image tag (use latest for testing)
   tag: "latest"
   # -- Image pull policy
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 # -- Image pull secrets for private registries
 imagePullSecrets: []
@@ -34,6 +34,8 @@ fullnameOverride: ""
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
+  # -- Automount service account token
+  automountServiceAccountToken: false
   # -- Annotations to add to the service account
   annotations: {}
   # -- The name of the service account to use
@@ -60,6 +62,8 @@ service:
   port: 18789
   # -- Target port on the container
   targetPort: 18789
+  # -- NodePort (only used when service.type is NodePort)
+  nodePort: null
   # -- Service annotations
   annotations: {}
 
@@ -148,6 +152,8 @@ openclaw:
 secrets:
   # -- Use existing secret instead of creating one
   existingSecret: ""
+  # -- Secret annotations
+  annotations: {}
   # -- Anthropic API key
   anthropicApiKey: ""
   # -- OpenAI API key

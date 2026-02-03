@@ -35,6 +35,8 @@ fullnameOverride: ""
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
+  # -- Automount service account token
+  automountServiceAccountToken: false
   # -- Annotations to add to the service account
   annotations: {}
   # -- The name of the service account to use
@@ -43,8 +45,6 @@ serviceAccount:
 ## @section Pod Settings
 
 # -- Pod annotations
-# NOTE: Setting podAnnotations currently causes a template scope issue.
-# Leave empty or use the default values.yaml until the template is fixed.
 podAnnotations: {}
 
 # -- Pod security context (relaxed for development)
@@ -167,6 +167,8 @@ openclaw:
 secrets:
   # -- Use existing secret instead of creating one
   existingSecret: ""
+  # -- Secret annotations
+  annotations: {}
   # -- Anthropic API key
   anthropicApiKey: ""
   # -- OpenAI API key

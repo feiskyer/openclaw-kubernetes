@@ -102,6 +102,17 @@ Validate that required secrets are provided when not using existing secret
 {{- end }}
 
 {{/*
+Validate autoscaling settings for single-instance app
+*/}}
+{{- define "openclaw.validateAutoscaling" -}}
+{{- if .Values.autoscaling.enabled -}}
+{{- if or (ne (int .Values.autoscaling.minReplicas) 1) (ne (int .Values.autoscaling.maxReplicas) 1) -}}
+{{- fail "autoscaling.enabled requires minReplicas=1 and maxReplicas=1 for OpenClaw" }}
+{{- end -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Pod labels
 */}}
 {{- define "openclaw.podLabels" -}}

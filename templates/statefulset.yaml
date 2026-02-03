@@ -16,12 +16,12 @@ spec:
       {{- include "openclaw.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") $ | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "openclaw.selectorLabels" . | nindent 8 }}
     spec:
@@ -30,6 +30,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "openclaw.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
@@ -53,6 +54,8 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /openclaw-data
+            - name: tmp
+              mountPath: /tmp
             - name: config
               mountPath: /etc/openclaw
               readOnly: true
@@ -228,6 +231,8 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /home/node/.openclaw
+            - name: tmp
+              mountPath: /tmp
             - name: config
               mountPath: /etc/openclaw
             {{- with .Values.extraVolumeMounts }}
@@ -237,15 +242,21 @@ spec:
             {{- toYaml . | nindent 8 }}
           {{- end }}
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: config
           configMap:
             name: {{ include "openclaw.configMapName" . }}
-        {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
-        # When using StatefulSet volumeClaimTemplates, don't create extra volume
-        {{- else if .Values.persistence.existingClaim }}
+        {{- if .Values.persistence.existingClaim }}
         - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim }}
+        {{- else if and .Values.persistence.enabled (not .Values.persistence.useStatefulSetVolumeClaim) }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "openclaw.pvcName" . }}
+        {{- else if .Values.persistence.enabled }}
+        # When using StatefulSet volumeClaimTemplates, don't create extra volume
         {{- else }}
         - name: data
           emptyDir: {}
@@ -269,7 +280,17 @@ spec:
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-  {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
+  {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) .Values.persistence.useStatefulSetVolumeClaim }}
+  {{- if semverCompare ">=1.25-0" .Capabilities.KubeVersion.Version }}
+  persistentVolumeClaimRetentionPolicy:
+    {{- if eq .Values.persistence.retainPolicy "Delete" }}
+    whenDeleted: Delete
+    whenScaled: Delete
+    {{- else }}
+    whenDeleted: Retain
+    whenScaled: Retain
+    {{- end }}
+  {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: data

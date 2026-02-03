@@ -1,0 +1,4 @@
+{{- if or .Release.IsInstall .Release.IsUpgrade -}}
+{{- include "openclaw.validateSecrets" . -}}
+{{- include "openclaw.validateAutoscaling" . -}}
+{{- end -}}
