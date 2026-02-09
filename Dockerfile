@@ -96,8 +96,5 @@ ENV FRONTEND_PORT=8080
 ENV HOST=0.0.0.0
 EXPOSE 8080
 
-# Copy entrypoint script
-COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
-
 # Entrypoint starts openclaw gateway
 ENTRYPOINT [ "openclaw", "gateway", "--allow-unconfigured"]
