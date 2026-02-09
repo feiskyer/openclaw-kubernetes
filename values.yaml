@@ -205,6 +205,21 @@ openclaw:
       port: 18789
     logging:
       level: "info"
+    # -- Browser configuration for headless Chrome
+    browser:
+      enabled: true
+      remoteCdpTimeoutMs: 1500
+      remoteCdpHandshakeTimeoutMs: 3000
+      color: "#FF4500"
+      executablePath: "/usr/bin/google-chrome"
+      headless: true
+      noSandbox: true
+      attachOnly: false
+      defaultProfile: "openclaw"
+      profiles:
+        openclaw:
+          cdpPort: 18800
+          color: "#FF4500"
 
 
 # -- Secrets configuration
@@ -243,10 +258,10 @@ readinessProbe:
       - node
       - dist/index.js
       - health
-  initialDelaySeconds: 10
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 6
   successThreshold: 1
 
 # -- Startup probe configuration

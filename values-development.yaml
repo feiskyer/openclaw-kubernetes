@@ -160,6 +160,21 @@ openclaw:
     # Debug logging for development
     logging:
       level: "debug"
+    # -- Browser configuration for headless Chrome
+    browser:
+      enabled: true
+      remoteCdpTimeoutMs: 1500
+      remoteCdpHandshakeTimeoutMs: 3000
+      color: "#FF4500"
+      executablePath: "/usr/bin/google-chrome"
+      headless: true
+      noSandbox: true
+      attachOnly: false
+      defaultProfile: "openclaw"
+      profiles:
+        openclaw:
+          cdpPort: 18800
+          color: "#FF4500"
 
 ## @section Secrets
 

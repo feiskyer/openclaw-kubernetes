@@ -33,7 +33,7 @@ Charts are published as OCI artifacts in GHCR.
 
    This deploys the OpenClaw gateway and a LiteLLM proxy with Github Copilot provider (enabled by default).
 
-1) (Optional) Use a specific model provider instead of the default GitHub Copilot:
+1) (Alternative) Use a specific model provider (e.g. Anthropic):
 
    ```bash
    helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
