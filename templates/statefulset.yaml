@@ -45,11 +45,20 @@ spec:
             - |
               set -e
               mkdir -p /openclaw-data
-              if [ -d /home/node/.openclaw ] && [ -z "$(ls -A /openclaw-data 2>/dev/null)" ]; then
-                cp -a /home/node/.openclaw/. /openclaw-data/
+              if [ -d /home/vibe/.openclaw ] && [ -z "$(ls -A /openclaw-data 2>/dev/null)" ]; then
+                cp -a /home/vibe/.openclaw/. /openclaw-data/
               fi
               if [ -f /etc/openclaw/openclaw.json ] && [ ! -f /openclaw-data/openclaw.json ]; then
                 cp /etc/openclaw/openclaw.json /openclaw-data/openclaw.json
+              fi
+              # Seed codex config from ConfigMap (with litellm URL)
+              mkdir -p /home/vibe/.codex
+              if [ -f /etc/openclaw/codex-config.toml ]; then
+                cp /etc/openclaw/codex-config.toml /home/vibe/.codex/config.toml
+              fi
+              # Seed claude settings from ConfigMap (with litellm URL)
+              if [ -f /etc/openclaw/claude-settings.json ]; then
+                cp /etc/openclaw/claude-settings.json /home/vibe/.claude/settings.json
               fi
           volumeMounts:
             - name: data
@@ -59,6 +68,10 @@ spec:
             - name: config
               mountPath: /etc/openclaw
               readOnly: true
+            - name: codex-config
+              mountPath: /home/vibe/.codex
+            - name: claude-config
+              mountPath: /home/vibe/.claude
       {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -85,21 +98,8 @@ spec:
             - name: NODE_ENV
               value: "production"
             - name: OPENCLAW_DATA_DIR
-              value: "/home/node/.openclaw"
+              value: "/home/vibe/.openclaw"
             {{- if .Values.secrets.existingSecret }}
-            # API Keys from existing secret
-            - name: ANTHROPIC_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.existingSecret }}
-                  key: ANTHROPIC_API_KEY
-                  optional: true
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.existingSecret }}
-                  key: OPENAI_API_KEY
-                  optional: true
             # Messaging channel tokens from existing secret
             - name: DISCORD_BOT_TOKEN
               valueFrom:
@@ -132,19 +132,6 @@ spec:
                   name: {{ .Values.secrets.existingSecret }}
                   key: OPENCLAW_GATEWAY_TOKEN
             {{- else }}
-            # API Keys from created secret
-            - name: ANTHROPIC_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "openclaw.secretName" . }}
-                  key: ANTHROPIC_API_KEY
-                  optional: true
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "openclaw.secretName" . }}
-                  key: OPENAI_API_KEY
-                  optional: true
             # Messaging channel tokens from created secret
             - name: DISCORD_BOT_TOKEN
               valueFrom:
@@ -179,7 +166,7 @@ spec:
             {{- end }}
             # Config file path
             - name: OPENCLAW_CONFIG_PATH
-              value: "/home/node/.openclaw/openclaw.json"
+              value: "/home/vibe/.openclaw/openclaw.json"
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -230,11 +217,15 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: data
-              mountPath: /home/node/.openclaw
+              mountPath: /home/vibe/.openclaw
             - name: tmp
               mountPath: /tmp
             - name: config
               mountPath: /etc/openclaw
+            - name: codex-config
+              mountPath: /home/vibe/.codex
+            - name: claude-config
+              mountPath: /home/vibe/.claude
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -243,6 +234,10 @@ spec:
           {{- end }}
       volumes:
         - name: tmp
+          emptyDir: {}
+        - name: codex-config
+          emptyDir: {}
+        - name: claude-config
           emptyDir: {}
         - name: config
           configMap:

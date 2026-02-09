@@ -1,0 +1,21 @@
+{{- if .Values.litellm.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "openclaw.litellm.fullname" . }}
+  labels:
+    {{- include "openclaw.litellm.labels" . | nindent 4 }}
+  {{- with .Values.litellm.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.litellm.service.type }}
+  ports:
+    - port: {{ .Values.litellm.service.port }}
+      targetPort: {{ .Values.litellm.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "openclaw.litellm.selectorLabels" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,103 @@
+{{- if .Values.litellm.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "openclaw.litellm.fullname" . }}
+  labels:
+    {{- include "openclaw.litellm.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.litellm.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "openclaw.litellm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/litellm-configmap.yaml") $ | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/litellm-secret.yaml") $ | sha256sum }}
+      labels:
+        {{- include "openclaw.litellm.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "openclaw.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: litellm
+          image: "{{ .Values.litellm.image.repository }}:{{ .Values.litellm.image.tag }}"
+          imagePullPolicy: {{ .Values.litellm.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          args:
+            - --config
+            - /app/config.yaml
+            - --port
+            - {{ .Values.litellm.service.targetPort | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.litellm.service.targetPort }}
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{ include "openclaw.litellm.secretName" . }}
+          {{- with .Values.litellm.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health/liveliness
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/readiness
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.litellm.resources | nindent 12 }}
+          volumeMounts:
+            - name: litellm-config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+              readOnly: true
+            - name: litellm-data
+              mountPath: {{ .Values.litellm.persistence.mountPath }}
+      volumes:
+        - name: litellm-config
+          configMap:
+            name: {{ include "openclaw.litellm.configMapName" . }}
+        - name: litellm-data
+          {{- if .Values.litellm.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.litellm.persistence.existingClaim | default (printf "%s-data" (include "openclaw.litellm.fullname" .)) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

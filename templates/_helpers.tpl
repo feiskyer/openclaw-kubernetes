@@ -136,6 +136,48 @@ Return the appropriate apiVersion for ingress
 {{- end }}
 
 {{/*
+LiteLLM fullname
+*/}}
+{{- define "openclaw.litellm.fullname" -}}
+{{- printf "%s-litellm" (include "openclaw.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+LiteLLM ConfigMap name
+*/}}
+{{- define "openclaw.litellm.configMapName" -}}
+{{- printf "%s-litellm-config" (include "openclaw.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+LiteLLM Secret name
+*/}}
+{{- define "openclaw.litellm.secretName" -}}
+{{- printf "%s-litellm" (include "openclaw.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+LiteLLM selector labels
+*/}}
+{{- define "openclaw.litellm.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "openclaw.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: litellm
+{{- end }}
+
+{{/*
+LiteLLM labels
+*/}}
+{{- define "openclaw.litellm.labels" -}}
+helm.sh/chart: {{ include "openclaw.chart" . }}
+{{ include "openclaw.litellm.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
 Return true if the ingress supports pathType
 */}}
 {{- define "openclaw.ingress.supportsPathType" -}}

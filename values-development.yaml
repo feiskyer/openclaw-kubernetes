@@ -12,7 +12,7 @@ replicaCount: 1
 # -- Docker image configuration
 image:
   # -- Image repository including registry
-  repository: ghcr.io/openclaw/openclaw
+  repository: ghcr.io/feiskyer/openclaw-gateway
   # -- Image tag (use latest for development)
   tag: "latest"
   # -- Image pull policy
@@ -169,10 +169,6 @@ secrets:
   existingSecret: ""
   # -- Secret annotations
   annotations: {}
-  # -- Anthropic API key
-  anthropicApiKey: ""
-  # -- OpenAI API key
-  openaiApiKey: ""
   # -- Discord bot token
   discordBotToken: ""
   # -- Telegram bot token
@@ -248,6 +244,51 @@ initContainers: []
 
 # -- Sidecar containers
 sidecars: []
+
+## @section LiteLLM Proxy
+
+# -- LiteLLM Proxy configuration
+litellm:
+  # -- Enable LiteLLM proxy deployment
+  enabled: true
+  # -- Number of replicas
+  replicaCount: 1
+  # -- LiteLLM image configuration
+  image:
+    repository: ghcr.io/berriai/litellm
+    tag: main-latest
+    pullPolicy: IfNotPresent
+  # -- Service configuration
+  service:
+    type: ClusterIP
+    port: 4000
+    targetPort: 4000
+    annotations: {}
+  # -- Resource requests and limits (minimal for development)
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  # -- Model to proxy through LiteLLM
+  model: claude-opus-4.6
+  # -- LiteLLM provider and credentials
+  secrets:
+    provider: github_copilot
+    apiKey: ""
+    apiBase: ""
+  # -- Persistent storage for LiteLLM data
+  persistence:
+    # Disabled for development - data is ephemeral
+    enabled: false
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    mountPath: /home/litellm/.config/litellm
+    existingClaim: ""
+  # -- Extra environment variables
+  extraEnv: []
+  # -- Override the default LiteLLM config entirely
+  configOverride: ""
 
 ## @section Pod Disruption Budget
 

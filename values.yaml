@@ -9,7 +9,7 @@ replicaCount: 1
 # -- Docker image configuration
 image:
   # -- Image repository
-  repository: ghcr.io/openclaw/openclaw
+  repository: ghcr.io/feiskyer/openclaw-gateway
   # -- Image pull policy
   pullPolicy: Always
   # -- Image tag (defaults to chart appVersion if not set)
@@ -209,9 +209,6 @@ secrets:
   existingSecret: ""
   # -- Secret annotations
   annotations: {}
-  # -- API Keys
-  anthropicApiKey: ""
-  openaiApiKey: ""
   # -- Messaging channel tokens
   discordBotToken: ""
   telegramBotToken: ""
@@ -261,6 +258,62 @@ startupProbe:
   timeoutSeconds: 5
   failureThreshold: 30
   successThreshold: 1
+
+# -- LiteLLM Proxy configuration
+litellm:
+  # -- Enable LiteLLM proxy deployment
+  enabled: true
+  # -- Number of replicas
+  replicaCount: 1
+  # -- LiteLLM image configuration
+  image:
+    repository: ghcr.io/berriai/litellm
+    tag: main-latest
+    pullPolicy: IfNotPresent
+  # -- Service configuration
+  service:
+    type: ClusterIP
+    port: 4000
+    targetPort: 4000
+    annotations: {}
+  # -- Resource requests and limits
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  # -- Model to proxy through LiteLLM
+  model: claude-opus-4.6
+  # -- LiteLLM provider and credentials
+  secrets:
+    # -- Model provider: github_copilot, anthropic, or openai
+    provider: github_copilot
+    # -- API key for the provider (not needed for github_copilot)
+    apiKey: ""
+    # -- API base URL (optional, for custom endpoints)
+    apiBase: ""
+  # -- Persistent storage for LiteLLM data (~/.config/litellm)
+  persistence:
+    # -- Enable persistent storage
+    enabled: true
+    # -- Storage class name (empty for default)
+    storageClass: ""
+    # -- Access mode for the PVC
+    accessMode: ReadWriteOnce
+    # -- Size of the persistent volume
+    size: 1Gi
+    # -- Mount path inside the container
+    mountPath: /home/litellm/.config/litellm
+    # -- Use an existing PVC instead of creating one
+    existingClaim: ""
+  # -- Extra environment variables
+  extraEnv: []
+  # -- Override the default LiteLLM config entirely
+  # When set, replaces the built-in config in the ConfigMap template.
+  # When empty, the default config (github_copilot models) is used.
+  configOverride: ""
 
 # -- Pod Disruption Budget configuration
 podDisruptionBudget:

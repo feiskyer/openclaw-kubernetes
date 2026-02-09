@@ -1,0 +1,40 @@
+{{- if .Values.litellm.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openclaw.litellm.configMapName" . }}
+  labels:
+    {{- include "openclaw.litellm.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    {{- if .Values.litellm.configOverride }}
+    {{- .Values.litellm.configOverride | nindent 4 }}
+    {{- else }}
+    litellm_settings:
+      drop_params: true
+    model_list:
+    {{- if eq .Values.litellm.secrets.provider "github_copilot" }}
+    - model_name: {{ .Values.litellm.model | quote }}
+      {{- if not (hasPrefix "claude" .Values.litellm.model) }}
+      model_info:
+        mode: responses
+        supports_vision: true
+      {{- end }}
+      litellm_params:
+        model: {{ printf "github_copilot/%s" .Values.litellm.model | quote }}
+        drop_params: true
+        extra_headers:
+          editor-version: "vscode/1.95.0"
+          editor-plugin-version: "copilot-chat/0.26.7"
+    {{- else }}
+    - model_name: {{ .Values.litellm.model | quote }}
+      litellm_params:
+        model: {{ printf "%s/%s" .Values.litellm.secrets.provider .Values.litellm.model | quote }}
+        drop_params: true
+        api_key: "os.environ/apiKey"
+        {{- if .Values.litellm.secrets.apiBase }}
+        api_base: {{ .Values.litellm.secrets.apiBase | quote }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,17 @@
+{{- if and .Values.litellm.enabled .Values.litellm.persistence.enabled (not .Values.litellm.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "openclaw.litellm.fullname" . }}-data
+  labels:
+    {{- include "openclaw.litellm.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.litellm.persistence.accessMode }}
+  {{- if .Values.litellm.persistence.storageClass }}
+  storageClassName: {{ .Values.litellm.persistence.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.litellm.persistence.size }}
+{{- end }}

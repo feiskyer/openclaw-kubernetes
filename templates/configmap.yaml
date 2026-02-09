@@ -5,5 +5,108 @@ metadata:
   labels:
     {{- include "openclaw.labels" . | nindent 4 }}
 data:
+  {{- $litellmUrl := "http://localhost:4000" }}
+  {{- if .Values.litellm.enabled }}
+  {{- $litellmUrl = printf "http://%s:%v" (include "openclaw.litellm.fullname" .) .Values.litellm.service.port }}
+  {{- end }}
   openclaw.json: |
-{{ .Values.openclaw.config | toJson | indent 4 }}
+    {{- $config := deepCopy .Values.openclaw.config }}
+    {{- if .Values.litellm.enabled }}
+    {{- $api := "openai-completions" }}
+    {{- if hasPrefix "claude" .Values.litellm.model }}
+    {{- $api = "anthropic-messages" }}
+    {{- else if hasPrefix "gpt" .Values.litellm.model }}
+    {{- $api = "openai-responses" }}
+    {{- end }}
+    {{- $model := dict "id" .Values.litellm.model "name" .Values.litellm.model "input" (list "text") "cost" (dict "input" 0 "output" 0 "cacheRead" 0 "cacheWrite" 0) "contextWindow" 200000 "maxTokens" 8192 }}
+    {{- $provider := dict "baseUrl" $litellmUrl "apiKey" "not-needed" "api" $api "models" (list $model) }}
+    {{- $_ := set $config "models" (dict "mode" "merge" "providers" (dict "litellm" $provider)) }}
+    {{- $_ := set $config "agents" (dict "defaults" (dict "model" (dict "primary" (printf "litellm/%s" .Values.litellm.model)))) }}
+    {{- end }}
+{{ $config | toPrettyJson | indent 4 }}
+  codex-config.toml: |
+    # Codex CLI Configuration
+    # This configuration uses LiteLLM as the model provider gateway
+    model = "gpt-5.2-codex"
+    model_provider = "github"
+    model_verbosity = "medium"
+    approval_policy = "on-failure"
+    sandbox_mode = "workspace-write"
+    model_reasoning_effort = "high"
+    suppress_unstable_features_warning = true
+    web_search = "disabled"
+
+    [features]
+    skills = true
+    unified_exec = true
+    shell_snapshot = true
+    collab = true
+    steer = true
+    collaboration_modes = true
+    personality = true
+
+    # Model providers (LiteLLM proxy)
+    [model_providers.github]
+    name     = "Github"
+    base_url = {{ $litellmUrl | quote }}
+    http_headers = { "Authorization"= "Bearer sk-dummy" }
+    wire_api = "responses"
+
+    [mcp_servers.chrome]
+    command = "npx"
+    args = ["chrome-devtools-mcp@latest"]
+  claude-settings.json: |
+    {
+      "env": {
+        "ANTHROPIC_BASE_URL": {{ $litellmUrl | quote }},
+        "ANTHROPIC_AUTH_TOKEN": "sk-dummy",
+        "ANTHROPIC_MODEL": "claude-opus-4.6",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4.5",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4.6",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5-mini",
+        "DISABLE_NON_ESSENTIAL_MODEL_CALLS": "1",
+        "DISABLE_TELEMETRY": "1",
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+        "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+      },
+      "alwaysThinkingEnabled": true,
+      "permissions": {
+        "allow": [
+          "Skill(codex-skill)",
+          "Skill(claude-code-settings:codex-skill)",
+          "Skill(nanobanana-skill)",
+          "Skill(claude-code-settings:nanobanana-skill)",
+          "Skill(youtube-transcribe-skill)",
+          "Skill(claude-code-settings:youtube-transcribe-skill)",
+          "Skill(autonomous-skill)",
+          "Skill(claude-code-settings:autonomous-skill)",
+          "Bash(codex:*)"
+        ],
+        "deny": ["Bash(rm -rf:*)", "Bash(rm -fr:*)"],
+        "ask": [
+          "Bash(sudo:*)",
+          "Bash(chmod 777:*)",
+          "Bash(git push --force:*)",
+          "Bash(git push -f:*)",
+          "Bash(git reset --hard:*)",
+          "Bash(git clean -fd:*)",
+          "Bash(npm publish:*)",
+          "Bash(eval:*)",
+          "Read(.env)",
+          "Read(.env.*)",
+          "Read(**/.env)",
+          "Read(**/.env.*)",
+          "Read(~/.ssh/**)",
+          "Read(~/.aws/**)",
+          "Read(**/*credential*)",
+          "Read(**/*secret*)",
+          "Read(**/*.pem)",
+          "Read(**/*.key)"
+        ]
+      },
+      "statusLine": {
+        "type": "command",
+        "command": "~/.claude/status-line.sh"
+      }
+    }
