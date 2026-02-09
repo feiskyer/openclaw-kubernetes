@@ -26,11 +26,3 @@ base_url = "http://localhost:4000"
 http_headers = { "Authorization"= "Bearer sk-dummy" }
 wire_api = "responses"
 
-# MCP Tools
-# [mcp_servers.claude] # Migrated to skills
-# command = "claude"
-# args = ["mcp", "serve"]
-
-[mcp_servers.chrome]
-command = "npx"
-args = ["chrome-devtools-mcp@latest"]

@@ -51,10 +51,6 @@ data:
     base_url = {{ $litellmUrl | quote }}
     http_headers = { "Authorization"= "Bearer sk-dummy" }
     wire_api = "responses"
-
-    [mcp_servers.chrome]
-    command = "npx"
-    args = ["chrome-devtools-mcp@latest"]
   claude-settings.json: |
     {
       "env": {
