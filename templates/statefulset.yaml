@@ -82,8 +82,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - node
-            - dist/index.js
+            - openclaw
             - gateway
             - --bind
             - lan
@@ -97,7 +96,7 @@ spec:
           env:
             - name: NODE_ENV
               value: "production"
-            - name: OPENCLAW_DATA_DIR
+            - name: OPENCLAW_STATE_DIR
               value: "/home/vibe/.openclaw"
             {{- if .Values.secrets.existingSecret }}
             # Messaging channel tokens from existing secret
@@ -178,8 +177,7 @@ spec:
           livenessProbe:
             exec:
               command:
-                - node
-                - dist/index.js
+                - openclaw
                 - health
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
@@ -191,8 +189,7 @@ spec:
           readinessProbe:
             exec:
               command:
-                - node
-                - dist/index.js
+                - openclaw
                 - health
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
@@ -204,8 +201,7 @@ spec:
           startupProbe:
             exec:
               command:
-                - node
-                - dist/index.js
+                - openclaw
                 - health
             initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.startupProbe.periodSeconds }}

@@ -41,7 +41,7 @@ podAnnotations: {}
 
 # -- Pod security context
 podSecurityContext:
-  fsGroup: 1000
+  fsGroup: 1024
   runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
@@ -53,7 +53,7 @@ securityContext:
       - ALL
   readOnlyRootFilesystem: true
   runAsNonRoot: true
-  runAsUser: 1000
+  runAsUser: 1024
   allowPrivilegeEscalation: false
   seccompProfile:
     type: RuntimeDefault

@@ -192,7 +192,7 @@ See `values.yaml` for the full list and `values.schema.json` for schema validati
 
 ## Persistence and data directory
 
-- Data volume mounted at `/home/vibe/.openclaw` (`OPENCLAW_DATA_DIR`).
+- Data volume mounted at `/home/vibe/.openclaw` (`OPENCLAW_STATE_DIR`).
 - An init container seeds the volume from the image when the PVC is empty.
 - Config (`openclaw.json`) is seeded from the ConfigMap if not already present.
 - When `persistence.enabled` is `false`, an `emptyDir` volume is used instead of a PVC.
