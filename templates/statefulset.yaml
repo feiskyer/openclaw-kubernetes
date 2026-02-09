@@ -30,7 +30,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "openclaw.serviceAccountName" . }}
-      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      # Auto-mount token when serviceAccount.role is set for kubectl access
+      automountServiceAccountToken: {{ not (empty .Values.serviceAccount.role) }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:

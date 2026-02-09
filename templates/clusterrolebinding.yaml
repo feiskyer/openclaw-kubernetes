@@ -1,0 +1,18 @@
+{{- if and .Values.serviceAccount.role (not .Values.serviceAccount.name) }}
+{{- if or (eq .Values.serviceAccount.role "view") (eq .Values.serviceAccount.role "cluster-admin") }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "openclaw.fullname" . }}-{{ .Values.serviceAccount.role }}
+  labels:
+    {{- include "openclaw.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.serviceAccount.role }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "openclaw.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- end }}

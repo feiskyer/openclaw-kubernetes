@@ -28,13 +28,17 @@ fullnameOverride: ""
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
-  # -- Automount service account token
-  automountServiceAccountToken: false
   # -- Annotations to add to the service account
   annotations: {}
-  # -- The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # -- The name of the service account to use (BYO service account).
+  # If set, no ClusterRoleBinding is created (user manages RBAC externally).
+  # If not set and create is true, a name is generated using the fullname template.
   name: ""
+  # -- Bind service account to a built-in Kubernetes ClusterRole for kubectl access.
+  # Options: "" (none), "view" (read-only), "cluster-admin" (full access)
+  # Only applies when using chart-created service account (name is not set).
+  # When set, automounts the service account token automatically.
+  role: ""
 
 # -- Pod annotations
 podAnnotations: {}

@@ -39,6 +39,15 @@ RUN apt-get update && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 
+# Install kubectl (latest stable, supports amd64 and arm64)
+RUN ARCH=$(dpkg --print-architecture) && \
+    KUBECTL_VERSION=$(curl -fsSL https://dl.k8s.io/release/stable.txt) && \
+    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o /usr/local/bin/kubectl && \
+    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl.sha256" -o /tmp/kubectl.sha256 && \
+    echo "$(cat /tmp/kubectl.sha256)  /usr/local/bin/kubectl" | sha256sum --check && \
+    chmod +x /usr/local/bin/kubectl && \
+    rm /tmp/kubectl.sha256
+
 # Create vibe user
 RUN groupadd --gid 1024 vibe && \
   useradd -s /bin/zsh --uid 1024 --gid 1024 -m vibe && \
