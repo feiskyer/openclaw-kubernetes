@@ -33,17 +33,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Chromium (available on both amd64 and arm64, unlike google-chrome-stable)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends chromium && \
+# Install Google Chrome stable
+RUN curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
+      | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" \
+      > /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends google-chrome-stable && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Install kubectl (latest stable, supports amd64 and arm64)
-RUN ARCH=$(dpkg --print-architecture) && \
-    KUBECTL_VERSION=$(curl -fsSL https://dl.k8s.io/release/stable.txt) && \
-    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o /usr/local/bin/kubectl && \
-    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl.sha256" -o /tmp/kubectl.sha256 && \
+# Install kubectl (latest stable)
+RUN KUBECTL_VERSION=$(curl -fsSL https://dl.k8s.io/release/stable.txt) && \
+    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" -o /usr/local/bin/kubectl && \
+    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" -o /tmp/kubectl.sha256 && \
     echo "$(cat /tmp/kubectl.sha256)  /usr/local/bin/kubectl" | sha256sum --check && \
     chmod +x /usr/local/bin/kubectl && \
     rm /tmp/kubectl.sha256
