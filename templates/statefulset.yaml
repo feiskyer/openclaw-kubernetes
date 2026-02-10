@@ -155,6 +155,18 @@ spec:
                   name: {{ .Values.secrets.existingSecret }}
                   key: MSTEAMS_TENANT_ID
                   optional: true
+            - name: BRAVE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: BRAVE_API_KEY
+                  optional: true
+            - name: PERPLEXITY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: PERPLEXITY_API_KEY
+                  optional: true
             # Gateway token from existing secret
             - name: OPENCLAW_GATEWAY_TOKEN
               valueFrom:
@@ -216,6 +228,18 @@ spec:
                 secretKeyRef:
                   name: {{ include "openclaw.secretName" . }}
                   key: MSTEAMS_TENANT_ID
+                  optional: true
+            - name: BRAVE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openclaw.secretName" . }}
+                  key: BRAVE_API_KEY
+                  optional: true
+            - name: PERPLEXITY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openclaw.secretName" . }}
+                  key: PERPLEXITY_API_KEY
                   optional: true
             # Gateway token from created secret
             - name: OPENCLAW_GATEWAY_TOKEN

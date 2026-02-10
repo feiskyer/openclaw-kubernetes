@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.6 (2026-02-10)
+
+- Added Feishu and Microsoft Teams channel support
+- Added Brave and Perplexity web search integration (auto-enables when API key is set)
+- Pre-installed channel plugins and clawhub in container image
+- Reorganized README with collapsible sections and quick reference tables
+
 ## v0.1.5 (2026-02-09)
 
 - Added browser configuration for Claude Code and Codex clients

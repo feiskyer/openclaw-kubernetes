@@ -80,7 +80,7 @@ ENV SHELL=/bin/zsh
 ENV CODEX_UNSAFE_ALLOW_NO_SANDBOX=1
 
 # Install npm global tools
-RUN npm install -g @openai/codex openclaw
+RUN npm install -g @openai/codex openclaw clawhub
 
 # Install openclaw channel plugins
 RUN openclaw plugins install @openclaw/feishu && \

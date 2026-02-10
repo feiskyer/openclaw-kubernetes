@@ -23,6 +23,15 @@ data:
     {{- $_ := set $config "models" (dict "mode" "merge" "providers" (dict "litellm" $provider)) }}
     {{- $_ := set $config "agents" (dict "defaults" (dict "model" (dict "primary" (printf "litellm/%s" .Values.litellm.model)))) }}
     {{- end }}
+    {{- /* Enable web search when Brave or Perplexity API key is configured */}}
+    {{- if or .Values.secrets.braveApiKey .Values.secrets.perplexityApiKey }}
+    {{- $webSearchProvider := "brave" }}
+    {{- if .Values.secrets.perplexityApiKey }}
+    {{- $webSearchProvider = "perplexity" }}
+    {{- end }}
+    {{- $webSearch := dict "enabled" true "provider" $webSearchProvider }}
+    {{- $_ := set $config "tools" (dict "web" (dict "search" $webSearch)) }}
+    {{- end }}
 {{ $config | toPrettyJson | indent 4 }}
   codex-config.toml: |
     # Codex CLI Configuration

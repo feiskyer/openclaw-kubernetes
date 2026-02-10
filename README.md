@@ -76,14 +76,18 @@ LiteLLM provides:
 1. **Provider decoupling** -- OpenClaw talks only to the local LiteLLM endpoint. Switching providers (e.g. GitHub Copilot to Anthropic) requires only a Helm values change.
 2. **Credential isolation** -- API keys live in the LiteLLM Secret and are never injected into the OpenClaw container. OpenClaw authenticates to LiteLLM with a dummy token over the cluster-internal network.
 
-### How it works
+<details>
+<summary>How it works</summary>
 
 - LiteLLM runs as a separate Deployment with its own Service (`<release>-litellm:4000`)
 - The OpenClaw ConfigMap (`openclaw.json`) is automatically configured to route model requests through the LiteLLM proxy
 - LiteLLM handles provider-specific API translation (Anthropic, OpenAI, GitHub Copilot, etc.)
 - Provider credentials live exclusively in the `<release>-litellm` Secret and are only mounted into the LiteLLM pod
 
-### Provider configuration
+</details>
+
+<details>
+<summary>Provider configuration</summary>
 
 Set the model provider via `litellm.secrets`:
 
@@ -95,7 +99,10 @@ Set the model provider via `litellm.secrets`:
 
 For providers with custom endpoints, set `litellm.secrets.apiBase` to the base URL.
 
-### Model selection
+</details>
+
+<details>
+<summary>Model selection</summary>
 
 Set `litellm.model` to configure which model to proxy (default: `claude-opus-4.6`). The API format in `openclaw.json` is automatically determined:
 
@@ -103,94 +110,127 @@ Set `litellm.model` to configure which model to proxy (default: `claude-opus-4.6
 - `gpt*` models use `openai-responses`
 - Other models use `openai-completions`
 
-### Custom LiteLLM config
+</details>
+
+<details>
+<summary>Custom LiteLLM config</summary>
 
 To override the built-in config entirely, set `litellm.configOverride` with your complete LiteLLM YAML config.
-
-## FAQ
-
-<details>
-<summary>How to use a free model?</summary>
-
-Run the onboard script and select **QWen** or **OpenCode Zen**, then pick a free model:
-
-```bash
-kubectl -n openclaw exec -it openclaw-0 -- node openclaw.mjs onboard
-```
-
-Example with OpenCode Zen:
-
-![OpenCode Zen Setup](images/opencode-zen-setup.png)
-
-</details>
-
-<details>
-<summary>How to join the Moltbook community?</summary>
-
-Send this prompt to your OpenClaw agent:
-
-```
-Read https://moltbook.com/skill.md and follow the instructions to join Moltbook
-```
-
-</details>
-
-<details>
-<summary>How to modify configuration after deployment?</summary>
-
-Run the onboard command:
-
-```bash
-kubectl -n openclaw exec -it openclaw-0 -- node openclaw.mjs onboard
-```
-
-</details>
-
-<details>
-<summary>How to authorize Telegram users?</summary>
-
-Add your user ID in **Channel -> Telegram -> Allow From**. Get your ID by messaging [@userinfobot](https://t.me/userinfobot).
-
-</details>
-
-<details>
-<summary>How to fix "disconnected (1008): pairing required" error?</summary>
-
-List pending device requests and approve yours:
-
-```bash
-kubectl -n openclaw exec -it openclaw-0 -- node dist/index.js devices list
-kubectl -n openclaw exec -it openclaw-0 -- node dist/index.js devices approve <your-request-id>
-```
 
 </details>
 
 ## Values and configuration
 
-Key values:
+### Quick reference
 
-- `image.*`: container image settings.
-- `replicaCount`: must be `1` (OpenClaw is single-instance).
-- `service.*`: Service type/ports/annotations.
-- `resources.*`: CPU/memory requests/limits.
-- `persistence.*`: PVC configuration for OpenClaw data.
-- `secrets.*`: messaging tokens and gateway token, or reference an existing secret.
-- `openclaw.config`: OpenClaw gateway configuration (rendered into `openclaw.json`).
-- `litellm.*`: LiteLLM proxy configuration (enabled by default).
-- `litellm.model`: model to proxy (default: `claude-opus-4.6`).
-- `litellm.secrets.*`: provider, API key, and base URL for the model provider.
-- `litellm.persistence.*`: PVC configuration for LiteLLM data.
-- `extraEnv`, `extraEnvFrom`, `extraVolumes`, `extraVolumeMounts`, `initContainers`, `sidecars`: extensions.
+| Value | Default | Description |
+|-------|---------|-------------|
+| `secrets.openclawGatewayToken` | `""` | **Required.** Gateway authentication token |
+| `litellm.enabled` | `true` | Enable LiteLLM proxy for model routing |
+| `litellm.model` | `claude-opus-4.6` | Model to proxy through LiteLLM |
+| `litellm.secrets.provider` | `github_copilot` | Model provider (`github_copilot`, `anthropic`, `openai`) |
+| `persistence.enabled` | `true` | Enable persistent storage |
+| `persistence.size` | `10Gi` | Storage size for OpenClaw data |
+| `ingress.enabled` | `false` | Enable Ingress for external access |
+| `service.type` | `ClusterIP` | Service type (`ClusterIP`, `NodePort`, `LoadBalancer`) |
 
-Preset values files:
+See dedicated sections below for [Secrets](#secrets), [Messaging Platforms](#messaging-platforms), [Web Search](#web-search), and [LiteLLM Proxy](#litellm-proxy).
 
-- `values-minimal.yaml`: minimal defaults for testing.
-- `values-development.yaml`: development-focused defaults.
-- `values-production.yaml`: production-leaning defaults.
+<details>
+<summary>Image and replicas</summary>
 
-See `values.yaml` for the full list and `values.schema.json` for schema validation.
+| Value | Default | Description |
+|-------|---------|-------------|
+| `replicaCount` | `1` | Must be 1 (OpenClaw is single-instance) |
+| `image.repository` | `ghcr.io/feiskyer/openclaw-gateway` | Container image |
+| `image.tag` | `""` | Image tag (defaults to chart appVersion) |
+| `image.pullPolicy` | `Always` | Image pull policy |
+| `imagePullSecrets` | `[]` | Pull secrets for private registries |
+
+</details>
+
+<details>
+<summary>Service and networking</summary>
+
+| Value | Default | Description |
+|-------|---------|-------------|
+| `service.type` | `ClusterIP` | Service type |
+| `service.port` | `18789` | Service port |
+| `service.nodePort` | `null` | NodePort (when type is NodePort) |
+| `ingress.enabled` | `false` | Enable Ingress |
+| `ingress.className` | `""` | Ingress class name |
+| `ingress.hosts` | `[{host: openclaw.local, ...}]` | Ingress hosts |
+| `ingress.tls` | `[]` | TLS configuration |
+
+</details>
+
+<details>
+<summary>Resources and probes</summary>
+
+| Value | Default | Description |
+|-------|---------|-------------|
+| `resources.requests.cpu` | `250m` | CPU request |
+| `resources.requests.memory` | `1Gi` | Memory request |
+| `resources.limits.cpu` | `2000m` | CPU limit |
+| `resources.limits.memory` | `8Gi` | Memory limit |
+| `livenessProbe.enabled` | `true` | Enable liveness probe |
+| `readinessProbe.enabled` | `true` | Enable readiness probe |
+| `startupProbe.enabled` | `false` | Enable startup probe |
+
+</details>
+
+<details>
+<summary>Service account and security</summary>
+
+| Value | Default | Description |
+|-------|---------|-------------|
+| `serviceAccount.create` | `true` | Create service account |
+| `serviceAccount.role` | `""` | Bind to ClusterRole (`view`, `cluster-admin`, or empty) |
+| `podSecurityContext.runAsNonRoot` | `true` | Run as non-root user |
+| `securityContext.readOnlyRootFilesystem` | `true` | Read-only root filesystem |
+
+</details>
+
+<details>
+<summary>Scheduling and availability</summary>
+
+| Value | Default | Description |
+|-------|---------|-------------|
+| `nodeSelector` | `{}` | Node selector |
+| `tolerations` | `[]` | Pod tolerations |
+| `affinity` | `{}` | Pod affinity rules |
+| `topologySpreadConstraints` | `[]` | Topology spread constraints |
+| `podDisruptionBudget.enabled` | `false` | Enable PDB |
+
+</details>
+
+<details>
+<summary>Extensions</summary>
+
+| Value | Default | Description |
+|-------|---------|-------------|
+| `extraEnv` | `[]` | Extra environment variables |
+| `extraEnvFrom` | `[]` | Extra env from secrets/configmaps |
+| `extraVolumes` | `[]` | Extra volumes |
+| `extraVolumeMounts` | `[]` | Extra volume mounts |
+| `initContainers` | `[]` | Additional init containers |
+| `sidecars` | `[]` | Sidecar containers |
+
+</details>
+
+### Preset values files
+
+| File | Use case |
+|------|----------|
+| `values.yaml` | Full defaults with security hardening |
+| `values-minimal.yaml` | CI/testing (no security context, no persistence) |
+| `values-development.yaml` | Local dev (NodePort, relaxed security, debug logging) |
+| `values-production.yaml` | Production (Ingress + TLS, anti-affinity, backup annotations) |
 
 ## Persistence and data directory
+
+<details>
+<summary>Storage configuration details</summary>
 
 - Data volume mounted at `/home/vibe/.openclaw` (`OPENCLAW_STATE_DIR`).
 - An init container seeds the volume from the image when the PVC is empty.
@@ -199,6 +239,8 @@ See `values.yaml` for the full list and `values.schema.json` for schema validati
 - To use a pre-provisioned volume, set `persistence.existingClaim`.
 - LiteLLM has its own PVC (`litellm.persistence.*`) mounted at `~/.config/litellm`.
 
+</details>
+
 ## Secrets
 
 Two modes:
@@ -206,7 +248,8 @@ Two modes:
 1) Set values under `secrets.*` and let the chart create a Secret.
 2) Reference an existing secret via `secrets.existingSecret`.
 
-Expected keys for an existing secret:
+<details>
+<summary>Expected keys for an existing secret</summary>
 
 - `OPENCLAW_GATEWAY_TOKEN` (required)
 - `TELEGRAM_BOT_TOKEN` (optional)
@@ -218,6 +261,10 @@ Expected keys for an existing secret:
 - `MSTEAMS_APP_ID` (optional)
 - `MSTEAMS_APP_PASSWORD` (optional)
 - `MSTEAMS_TENANT_ID` (optional)
+- `BRAVE_API_KEY` (optional)
+- `PERPLEXITY_API_KEY` (optional)
+
+</details>
 
 `secrets.openclawGatewayToken` is required when not using `secrets.existingSecret`.
 
@@ -320,6 +367,46 @@ helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
 
 </details>
 
+## Web Search
+
+OpenClaw supports web search via Brave or Perplexity. When an API key is configured, `tools.web.search` is automatically enabled in `openclaw.json`.
+
+<details>
+<summary>Brave Search</summary>
+
+Structured results (title, URL, snippet) with a free tier available.
+
+| Value | Environment Variable | Description |
+|-------|---------------------|-------------|
+| `secrets.braveApiKey` | `BRAVE_API_KEY` | Brave Search API key |
+
+```bash
+helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
+  --set secrets.openclawGatewayToken=$gatewayToken \
+  --set secrets.braveApiKey=<your-brave-api-key>
+```
+
+</details>
+
+<details>
+<summary>Perplexity</summary>
+
+AI-synthesized answers with citations from real-time web search.
+
+| Value | Environment Variable | Description |
+|-------|---------------------|-------------|
+| `secrets.perplexityApiKey` | `PERPLEXITY_API_KEY` | Perplexity API key |
+
+```bash
+helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
+  --set secrets.openclawGatewayToken=$gatewayToken \
+  --set secrets.perplexityApiKey=<your-perplexity-api-key>
+```
+
+</details>
+
+📖 [Web Search Documentation](https://docs.openclaw.ai/tools/web)
+
 ## Development
 
 ```bash
@@ -333,7 +420,8 @@ helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
 helm template openclaw . -f values.yaml
 ```
 
-## Publishing (maintainers)
+<details>
+<summary>Publishing</summary>
 
 Charts are published to GHCR as OCI artifacts on pushes to `main`.
 
@@ -351,15 +439,92 @@ Environment overrides:
 
 Bump `Chart.yaml` version before each release; OCI registries reject duplicate versions.
 
+</details>
+
+## FAQ
+
+<details>
+<summary>How to use a free model?</summary>
+
+Run the onboard script and select **QWen** or **OpenCode Zen**, then pick a free model:
+
+```bash
+kubectl -n openclaw exec -it openclaw-0 -- node openclaw.mjs onboard
+```
+
+Example with OpenCode Zen:
+
+![OpenCode Zen Setup](images/opencode-zen-setup.png)
+
+</details>
+
+<details>
+<summary>How to join the Moltbook community?</summary>
+
+Send this prompt to your OpenClaw agent:
+
+```
+Read https://moltbook.com/skill.md and follow the instructions to join Moltbook
+```
+
+</details>
+
+<details>
+<summary>How to modify configuration after deployment?</summary>
+
+Run the onboard command:
+
+```bash
+kubectl -n openclaw exec -it openclaw-0 -- node openclaw.mjs onboard
+```
+
+</details>
+
+<details>
+<summary>How to authorize Telegram users?</summary>
+
+Add your user ID in **Channel -> Telegram -> Allow From**. Get your ID by messaging [@userinfobot](https://t.me/userinfobot).
+
+</details>
+
+<details>
+<summary>How to fix "disconnected (1008): pairing required" error?</summary>
+
+List pending device requests and approve yours:
+
+```bash
+kubectl -n openclaw exec -it openclaw-0 -- node dist/index.js devices list
+kubectl -n openclaw exec -it openclaw-0 -- node dist/index.js devices approve <your-request-id>
+```
+
+</details>
+
 ## Links
 
 - [OpenClaw](https://openclaw.ai/) (formerly Moltbot/Clawdbot)
+- [OpenClaw Documentation](https://docs.openclaw.ai/)
 - [AI Agent Community](https://www.moltbook.com/)
 - [Source Code](https://github.com/openclaw/openclaw)
 
 ## Acknowledgments
 
+<details>
+<summary>OpenClaw Project</summary>
+
+This Helm chart deploys [OpenClaw](https://openclaw.ai/), an open-source personal AI assistant gateway. Thanks to the OpenClaw team for building and maintaining this project.
+
+- [OpenClaw Website](https://openclaw.ai/)
+- [OpenClaw Documentation](https://docs.openclaw.ai/)
+- [OpenClaw Source Code](https://github.com/openclaw/openclaw)
+
+</details>
+
+<details>
+<summary>Original Helm Chart PR</summary>
+
 This chart is forked from [openclaw/openclaw#2562](https://github.com/openclaw/openclaw/pull/2562/). The original PR was not accepted upstream, so this repository continues the work with further improvements. Thanks to the original author for the initial draft.
+
+</details>
 
 ## License
 

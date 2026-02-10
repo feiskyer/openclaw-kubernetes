@@ -240,6 +240,11 @@ secrets:
   msteamsAppId: ""
   msteamsAppPassword: ""
   msteamsTenantId: ""
+  # -- Web search API keys (enables tools.web.search when set)
+  # Brave Search - structured results with free tier
+  braveApiKey: ""
+  # Perplexity - AI-synthesized answers with citations
+  perplexityApiKey: ""
   # -- Gateway authentication token
   openclawGatewayToken: ""
 
