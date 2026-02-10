@@ -82,6 +82,10 @@ ENV CODEX_UNSAFE_ALLOW_NO_SANDBOX=1
 # Install npm global tools
 RUN npm install -g @openai/codex openclaw
 
+# Install openclaw channel plugins
+RUN openclaw plugins install @openclaw/feishu && \
+    openclaw plugins install @openclaw/msteams
+
 # Install uv via official installer
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
