@@ -83,8 +83,8 @@ ENV CODEX_UNSAFE_ALLOW_NO_SANDBOX=1
 RUN npm install -g @openai/codex openclaw clawhub
 
 # Install openclaw channel plugins
-RUN openclaw plugins install @openclaw/feishu && \
-    openclaw plugins install @openclaw/msteams
+# openclaw plugins install @openclaw/feishu # Skipping now for security reasons
+RUN openclaw plugins install @openclaw/msteams
 
 # Install uv via official installer
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
