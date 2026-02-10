@@ -233,6 +233,13 @@ secrets:
   telegramBotToken: ""
   slackBotToken: ""
   slackAppToken: ""
+  # -- Feishu (Lark) channel credentials
+  feishuAppId: ""
+  feishuAppSecret: ""
+  # -- Microsoft Teams channel credentials
+  msteamsAppId: ""
+  msteamsAppPassword: ""
+  msteamsTenantId: ""
   # -- Gateway authentication token
   openclawGatewayToken: ""
 

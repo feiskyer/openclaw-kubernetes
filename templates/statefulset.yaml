@@ -125,6 +125,36 @@ spec:
                   name: {{ .Values.secrets.existingSecret }}
                   key: SLACK_APP_TOKEN
                   optional: true
+            - name: FEISHU_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: FEISHU_APP_ID
+                  optional: true
+            - name: FEISHU_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: FEISHU_APP_SECRET
+                  optional: true
+            - name: MSTEAMS_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: MSTEAMS_APP_ID
+                  optional: true
+            - name: MSTEAMS_APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: MSTEAMS_APP_PASSWORD
+                  optional: true
+            - name: MSTEAMS_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: MSTEAMS_TENANT_ID
+                  optional: true
             # Gateway token from existing secret
             - name: OPENCLAW_GATEWAY_TOKEN
               valueFrom:
@@ -156,6 +186,36 @@ spec:
                 secretKeyRef:
                   name: {{ include "openclaw.secretName" . }}
                   key: SLACK_APP_TOKEN
+                  optional: true
+            - name: FEISHU_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openclaw.secretName" . }}
+                  key: FEISHU_APP_ID
+                  optional: true
+            - name: FEISHU_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openclaw.secretName" . }}
+                  key: FEISHU_APP_SECRET
+                  optional: true
+            - name: MSTEAMS_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openclaw.secretName" . }}
+                  key: MSTEAMS_APP_ID
+                  optional: true
+            - name: MSTEAMS_APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openclaw.secretName" . }}
+                  key: MSTEAMS_APP_PASSWORD
+                  optional: true
+            - name: MSTEAMS_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "openclaw.secretName" . }}
+                  key: MSTEAMS_TENANT_ID
                   optional: true
             # Gateway token from created secret
             - name: OPENCLAW_GATEWAY_TOKEN

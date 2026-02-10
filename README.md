@@ -213,10 +213,112 @@ Expected keys for an existing secret:
 - `DISCORD_BOT_TOKEN` (optional)
 - `SLACK_BOT_TOKEN` (optional)
 - `SLACK_APP_TOKEN` (optional)
+- `FEISHU_APP_ID` (optional)
+- `FEISHU_APP_SECRET` (optional)
+- `MSTEAMS_APP_ID` (optional)
+- `MSTEAMS_APP_PASSWORD` (optional)
+- `MSTEAMS_TENANT_ID` (optional)
 
 `secrets.openclawGatewayToken` is required when not using `secrets.existingSecret`.
 
 LiteLLM has its own secret (`<release>-litellm`) with keys `apiKey` and `apiBase`, configured via `litellm.secrets.*`.
+
+## Messaging Platforms
+
+OpenClaw supports multiple messaging platforms. Configure credentials via `secrets.*` values or an existing secret.
+
+<details>
+<summary>Discord</summary>
+
+| Value | Environment Variable | Description |
+|-------|---------------------|-------------|
+| `secrets.discordBotToken` | `DISCORD_BOT_TOKEN` | Bot token from Discord Developer Portal |
+
+```bash
+helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
+  --set secrets.openclawGatewayToken=$gatewayToken \
+  --set secrets.discordBotToken=<your-discord-bot-token>
+```
+
+📖 [Discord Setup Guide](https://docs.openclaw.ai/channels/discord)
+
+</details>
+
+<details>
+<summary>Telegram</summary>
+
+| Value | Environment Variable | Description |
+|-------|---------------------|-------------|
+| `secrets.telegramBotToken` | `TELEGRAM_BOT_TOKEN` | Bot token from [@BotFather](https://t.me/BotFather) |
+
+```bash
+helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
+  --set secrets.openclawGatewayToken=$gatewayToken \
+  --set secrets.telegramBotToken=<your-telegram-bot-token>
+```
+
+📖 [Telegram Setup Guide](https://docs.openclaw.ai/channels/telegram)
+
+</details>
+
+<details>
+<summary>Slack</summary>
+
+| Value | Environment Variable | Description |
+|-------|---------------------|-------------|
+| `secrets.slackBotToken` | `SLACK_BOT_TOKEN` | Bot user OAuth token (`xoxb-...`) |
+| `secrets.slackAppToken` | `SLACK_APP_TOKEN` | App-level token (`xapp-...`) |
+
+```bash
+helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
+  --set secrets.openclawGatewayToken=$gatewayToken \
+  --set secrets.slackBotToken=xoxb-... \
+  --set secrets.slackAppToken=xapp-...
+```
+
+📖 [Slack Setup Guide](https://docs.openclaw.ai/channels/slack)
+
+</details>
+
+<details>
+<summary>Feishu (Lark)</summary>
+
+| Value | Environment Variable | Description |
+|-------|---------------------|-------------|
+| `secrets.feishuAppId` | `FEISHU_APP_ID` | App ID (`cli_xxx`) from Feishu Open Platform |
+| `secrets.feishuAppSecret` | `FEISHU_APP_SECRET` | App Secret (keep private) |
+
+```bash
+helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
+  --set secrets.openclawGatewayToken=$gatewayToken \
+  --set secrets.feishuAppId=cli_xxx \
+  --set secrets.feishuAppSecret=<your-app-secret>
+```
+
+📖 [Feishu Setup Guide](https://docs.openclaw.ai/channels/feishu)
+
+</details>
+
+<details>
+<summary>Microsoft Teams</summary>
+
+| Value | Environment Variable | Description |
+|-------|---------------------|-------------|
+| `secrets.msteamsAppId` | `MSTEAMS_APP_ID` | Azure Bot Application ID |
+| `secrets.msteamsAppPassword` | `MSTEAMS_APP_PASSWORD` | Client secret from Azure Portal |
+| `secrets.msteamsTenantId` | `MSTEAMS_TENANT_ID` | Directory (tenant) ID |
+
+```bash
+helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
+  --set secrets.openclawGatewayToken=$gatewayToken \
+  --set secrets.msteamsAppId=<azure-app-id> \
+  --set secrets.msteamsAppPassword=<client-secret> \
+  --set secrets.msteamsTenantId=<tenant-id>
+```
+
+📖 [Microsoft Teams Setup Guide](https://docs.openclaw.ai/channels/msteams)
+
+</details>
 
 ## Development
 
