@@ -51,6 +51,9 @@ RUN KUBECTL_VERSION=$(curl -fsSL https://dl.k8s.io/release/stable.txt) && \
     chmod +x /usr/local/bin/kubectl && \
     rm /tmp/kubectl.sha256
 
+# Install Azure CLI (official install command)
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
 # Create vibe user
 RUN groupadd --gid 1024 vibe && \
   useradd -s /bin/zsh --uid 1024 --gid 1024 -m vibe && \
