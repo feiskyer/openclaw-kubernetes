@@ -97,10 +97,11 @@ RUN curl -fsSL https://claude.ai/install.sh | bash && \
       echo '{"hasCompletedOnboarding": true}' > ~/.claude.json; \
     fi
 
-# Copy codex and claude configs (defaults for standalone use, k8s init container overrides base URL)
-RUN mkdir -p /home/vibe/.codex
+# Copy default local configs
+RUN mkdir -p /home/vibe/.codex /home/vibe/.kube
 COPY --chown=vibe:vibe configs/codex-config.toml /home/vibe/.codex/config.toml
 COPY --chown=vibe:vibe configs/claude-settings.json /home/vibe/.claude/settings.json
+COPY --chown=vibe:vibe configs/kubeconfig /home/vibe/.kube/config
 
 # Environments for vibe-kanban
 ENV FRONTEND_PORT=8080
