@@ -205,6 +205,10 @@ openclaw:
       port: 18789
     logging:
       level: "info"
+    # -- Agent defaults
+    agents:
+      defaults:
+        verboseDefault: "on"
     # -- Browser configuration for headless Chrome
     browser:
       enabled: true

@@ -21,7 +21,11 @@ data:
     {{- $model := dict "id" .Values.litellm.model "name" .Values.litellm.model "input" (list "text") "cost" (dict "input" 0 "output" 0 "cacheRead" 0 "cacheWrite" 0) "contextWindow" 200000 "maxTokens" 8192 }}
     {{- $provider := dict "baseUrl" $litellmUrl "apiKey" "not-needed" "api" $api "models" (list $model) }}
     {{- $_ := set $config "models" (dict "mode" "merge" "providers" (dict "litellm" $provider)) }}
-    {{- $_ := set $config "agents" (dict "defaults" (dict "model" (dict "primary" (printf "litellm/%s" .Values.litellm.model)))) }}
+    {{- $agentDefaults := dict "model" (dict "primary" (printf "litellm/%s" .Values.litellm.model)) }}
+    {{- if (dig "agents" "defaults" nil $config) }}
+    {{- $agentDefaults = merge $agentDefaults (dig "agents" "defaults" (dict) $config) }}
+    {{- end }}
+    {{- $_ := set $config "agents" (dict "defaults" $agentDefaults) }}
     {{- end }}
     {{- /* Enable web search when Brave or Perplexity API key is configured */}}
     {{- if or .Values.secrets.braveApiKey .Values.secrets.perplexityApiKey }}
