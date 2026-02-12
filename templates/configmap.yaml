@@ -36,6 +36,26 @@ data:
     {{- $webSearch := dict "enabled" true "provider" $webSearchProvider }}
     {{- $_ := set $config "tools" (dict "web" (dict "search" $webSearch)) }}
     {{- end }}
+    {{- /* Auto-enable channel plugins when bot tokens are configured */}}
+    {{- $pluginEntries := dict }}
+    {{- if .Values.secrets.telegramBotToken }}
+    {{- $_ := set $pluginEntries "telegram" (dict "enabled" true) }}
+    {{- end }}
+    {{- if and .Values.secrets.slackBotToken .Values.secrets.slackAppToken }}
+    {{- $_ := set $pluginEntries "slack" (dict "enabled" true) }}
+    {{- end }}
+    {{- if .Values.secrets.discordBotToken }}
+    {{- $_ := set $pluginEntries "discord" (dict "enabled" true) }}
+    {{- end }}
+    {{- if and .Values.secrets.feishuAppId .Values.secrets.feishuAppSecret }}
+    {{- $_ := set $pluginEntries "feishu" (dict "enabled" true) }}
+    {{- end }}
+    {{- if and .Values.secrets.msteamsAppId .Values.secrets.msteamsAppPassword }}
+    {{- $_ := set $pluginEntries "msteams" (dict "enabled" true) }}
+    {{- end }}
+    {{- if $pluginEntries }}
+    {{- $_ := set $config "plugins" (dict "entries" $pluginEntries) }}
+    {{- end }}
 {{ $config | toPrettyJson | indent 4 }}
   codex-config.toml: |
     # Codex CLI Configuration

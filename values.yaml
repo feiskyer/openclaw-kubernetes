@@ -56,10 +56,13 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  readOnlyRootFilesystem: true
+    add:
+      - CAP_SETUID      # Required for sudo to switch users
+      - CAP_SETGID      # Required for sudo to switch groups
+  readOnlyRootFilesystem: false
   runAsNonRoot: true
   runAsUser: 1024
-  allowPrivilegeEscalation: false
+  allowPrivilegeEscalation: true
   seccompProfile:
     type: RuntimeDefault
 
@@ -193,8 +196,6 @@ persistence:
   # -- Retain policy for the PVC
   retainPolicy: Retain
   # -- Use StatefulSet volumeClaimTemplates (default: true)
-  # When true, StatefulSet manages PVC creation via volumeClaimTemplates
-  # When false, a separate PVC is created and referenced by StatefulSet
   useStatefulSetVolumeClaim: true
 
 # -- OpenClaw configuration

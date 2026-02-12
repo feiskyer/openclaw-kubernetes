@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.10 (2026-02-12)
+
+- Sudo enabled by default via securityContext (CAP_SETUID, CAP_SETGID, allowPrivilegeEscalation)
+- Set readOnlyRootFilesystem=false by default (required for package managers like apt/yum)
+
+## v0.1.9 (2026-02-12)
+
+- Auto-enable channel plugins when bot tokens are configured (Telegram/Discord require single token; Slack/Feishu/Teams require all credentials)
+
 ## v0.1.8 (2026-02-12)
 
 - Changed persistent volume to mount entire `/home/vibe` directory (plugins, configs, tools all persisted)

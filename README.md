@@ -187,7 +187,8 @@ See dedicated sections below for [Secrets](#secrets), [Messaging Platforms](#mes
 | `serviceAccount.create` | `true` | Create service account |
 | `serviceAccount.role` | `""` | Bind to ClusterRole (`view`, `cluster-admin`, or empty) |
 | `podSecurityContext.runAsNonRoot` | `true` | Run as non-root user |
-| `securityContext.readOnlyRootFilesystem` | `true` | Read-only root filesystem |
+| `securityContext.allowPrivilegeEscalation` | `true` | Allow privilege escalation (required for sudo) |
+| `securityContext.capabilities.add` | `[CAP_SETUID, CAP_SETGID]` | Capabilities for sudo |
 
 </details>
 

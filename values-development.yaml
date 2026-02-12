@@ -47,19 +47,10 @@ serviceAccount:
 # -- Pod annotations
 podAnnotations: {}
 
-# -- Pod security context (relaxed for development)
+# -- Pod security context
 podSecurityContext:
   fsGroup: 1024
   runAsNonRoot: true
-
-# -- Container security context (relaxed for development)
-securityContext:
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: false
-  runAsNonRoot: true
-  runAsUser: 1024
 
 ## @section Service Settings
 
