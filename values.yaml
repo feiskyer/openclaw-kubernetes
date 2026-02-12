@@ -53,12 +53,7 @@ podSecurityContext:
 
 # -- Container security context
 securityContext:
-  capabilities:
-    drop:
-      - ALL
-    add:
-      - CAP_SETUID      # Required for sudo to switch users
-      - CAP_SETGID      # Required for sudo to switch groups
+  capabilities: {}
   readOnlyRootFilesystem: false
   runAsNonRoot: true
   runAsUser: 1024
