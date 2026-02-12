@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.7 (2026-02-12)
+
+- Preserved agent defaults when merging LiteLLM config (no longer overwrites existing settings)
+- Enabled verbose mode by default for agents
+- Installed Azure CLI in the container image
+- Added a default kubeconfig for vibe user
+
 ## v0.1.6 (2026-02-10)
 
 - Added Feishu and Microsoft Teams channel support
