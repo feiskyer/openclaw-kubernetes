@@ -68,7 +68,7 @@
         "automountServiceAccountToken": {
           "type": "boolean",
           "description": "Automount service account token",
-          "default": false
+          "default": true
         },
         "annotations": {
           "type": "object",
@@ -374,7 +374,7 @@
         "size": {
           "type": "string",
           "description": "Size of the persistent volume",
-          "default": "10Gi"
+          "default": "100Gi"
         },
         "existingClaim": {
           "type": "string",

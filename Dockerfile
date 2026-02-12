@@ -82,8 +82,9 @@ ENV SHELL=/bin/zsh
 # Allow Codex CLI running without sandboxing
 ENV CODEX_UNSAFE_ALLOW_NO_SANDBOX=1
 
-# Install npm global tools
-RUN npm install -g @openai/codex openclaw clawhub
+# Install npm global tools (ping NPM version for ECOMPROMISED issue)
+RUN npm install -g npm@11.6.0 && npm install -g @openai/codex openclaw clawhub && \
+  npm cache clean --force
 
 # Install openclaw channel plugins (Skipping now for security reasons)
 # RUN openclaw plugins install @openclaw/feishu

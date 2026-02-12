@@ -42,18 +42,17 @@ All lint/test scripts pass `--set secrets.openclawGatewayToken=lint-token` autom
 
 The chart deploys two workloads:
 
-1. **OpenClaw StatefulSet** (`templates/statefulset.yaml`) — The gateway itself. Single-instance only (`replicaCount: 1`). Uses persistent storage for state at `/home/vibe/.openclaw`.
+1. **OpenClaw StatefulSet** (`templates/statefulset.yaml`) — The gateway itself. Single-instance only (`replicaCount: 1`). Uses persistent storage for the entire `/home/vibe` directory (plugins, configs, tools).
 2. **LiteLLM Deployment** (`templates/litellm-deployment.yaml`) — Optional proxy (enabled by default) that decouples OpenClaw from specific AI providers. Supports GitHub Copilot, Anthropic, and OpenAI providers. Runs as a separate Deployment with its own service, config, and secrets.
 
 OpenClaw connects to LiteLLM via its internal service URL, configured automatically in the generated `openclaw.json`.
 
 ### Init Container Data Seeding
 
-The `init-openclaw-data` container in the StatefulSet:
+The `init-home-data` container in the StatefulSet:
 
-1. Copies initial data from image's `/home/vibe/.openclaw` to PVC (only if PVC is empty)
-2. Seeds `openclaw.json` config from ConfigMap if not present in PVC
-3. Copies Codex (`codex-config.toml`) and Claude (`claude-settings.json`) configurations from ConfigMap
+1. Seeds `/home/vibe` from image to PVC on first run (if PVC is empty)
+2. Seeds `openclaw.json`, `codex-config.toml`, and `claude-settings.json` from ConfigMap
 
 ### ConfigMap Generation (`templates/configmap.yaml`)
 

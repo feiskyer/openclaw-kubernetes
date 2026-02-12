@@ -38,7 +38,7 @@ serviceAccount:
   # Options: "" (none), "view" (read-only), "cluster-admin" (full access)
   # Only applies when using chart-created service account (name is not set).
   # When set, automounts the service account token automatically.
-  role: ""
+  role: "view"
 
 # -- Pod annotations
 podAnnotations: {}
@@ -46,6 +46,7 @@ podAnnotations: {}
 # -- Pod security context
 podSecurityContext:
   fsGroup: 1024
+  fsGroupChangePolicy: "OnRootMismatch"
   runAsNonRoot: true
   seccompProfile:
     type: RuntimeDefault
@@ -184,7 +185,7 @@ persistence:
   # -- Access mode for the PVC
   accessMode: ReadWriteOnce
   # -- Size of the persistent volume
-  size: 10Gi
+  size: 100Gi
   # -- Existing PVC to use (if set, StatefulSet will use this instead of creating new PVCs)
   existingClaim: ""
   # -- Annotations for the PVC

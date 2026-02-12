@@ -36,7 +36,7 @@ serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
   # -- Automount service account token
-  automountServiceAccountToken: false
+  automountServiceAccountToken: true
   # -- Annotations to add to the service account
   annotations: {}
   # -- The name of the service account to use
@@ -166,11 +166,11 @@ persistence:
   # -- Enable persistent storage
   enabled: true
   # -- Storage class name (empty for default)
-  storageClass: "fast-ssd"
+  storageClass: ""
   # -- Access mode for the PVC
   accessMode: ReadWriteOnce
   # -- Size of the persistent volume
-  size: 10Gi
+  size: 100Gi
   # -- Existing PVC to use
   existingClaim: ""
   # -- Annotations for the PVC
@@ -328,9 +328,9 @@ litellm:
   # -- Persistent storage for LiteLLM data
   persistence:
     enabled: true
-    storageClass: "fast-ssd"
+    storageClass: ""
     accessMode: ReadWriteOnce
-    size: 2Gi
+    size: 1Gi
     mountPath: /home/litellm/.config/litellm
     existingClaim: ""
   # -- Extra environment variables

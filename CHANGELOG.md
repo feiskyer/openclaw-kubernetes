@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.1.8 (2026-02-12)
+
+- Changed persistent volume to mount entire `/home/vibe` directory (plugins, configs, tools all persisted)
+- Renamed init container to `init-home-data` with simplified seeding logic
+- Pinned npm to v11.6.0 in Dockerfile to address ECOMPROMISED issue
+- Increased default persistence size from 10Gi to 100Gi
+- Added `fsGroupChangePolicy: OnRootMismatch` for faster pod startup
+- Enabled service account token automount by default
+- Set default service account role to "view" for read-only Kubernetes access
+
 ## v0.1.7 (2026-02-12)
 
 - Preserved agent defaults when merging LiteLLM config (no longer overwrites existing settings)
