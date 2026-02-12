@@ -112,3 +112,5 @@ data:
         ]
       }
     }
+  init-home.sh: |
+{{ .Files.Get "configs/init-home.sh" | indent 4 }}
