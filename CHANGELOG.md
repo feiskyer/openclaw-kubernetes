@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.11 (2026-02-12)
+
+- Fix sudo permission issues
+
 ## v0.1.10 (2026-02-12)
 
 - Sudo enabled by default via securityContext (CAP_SETUID, CAP_SETGID, allowPrivilegeEscalation)
