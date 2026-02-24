@@ -192,11 +192,6 @@ secrets:
 # Relaxed probes for development (slower startup acceptable)
 livenessProbe:
   enabled: true
-  exec:
-    command:
-      - node
-      - dist/index.js
-      - health
   initialDelaySeconds: 60
   periodSeconds: 30
   timeoutSeconds: 10
@@ -206,11 +201,6 @@ livenessProbe:
 # -- Readiness probe configuration
 readinessProbe:
   enabled: true
-  exec:
-    command:
-      - node
-      - dist/index.js
-      - health
   initialDelaySeconds: 15
   periodSeconds: 10
   timeoutSeconds: 5
@@ -220,11 +210,6 @@ readinessProbe:
 # -- Startup probe configuration
 startupProbe:
   enabled: false
-  exec:
-    command:
-      - node
-      - dist/index.js
-      - health
   initialDelaySeconds: 10
   periodSeconds: 10
   timeoutSeconds: 5

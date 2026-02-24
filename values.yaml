@@ -252,25 +252,15 @@ secrets:
 # -- Liveness probe configuration
 livenessProbe:
   enabled: true
-  exec:
-    command:
-      - node
-      - dist/index.js
-      - health
   initialDelaySeconds: 30
-  periodSeconds: 30
-  timeoutSeconds: 10
+  periodSeconds: 180
+  timeoutSeconds: 180
   failureThreshold: 3
   successThreshold: 1
 
 # -- Readiness probe configuration
 readinessProbe:
   enabled: true
-  exec:
-    command:
-      - node
-      - dist/index.js
-      - health
   initialDelaySeconds: 30
   periodSeconds: 30
   timeoutSeconds: 10
@@ -280,11 +270,6 @@ readinessProbe:
 # -- Startup probe configuration
 startupProbe:
   enabled: false
-  exec:
-    command:
-      - node
-      - dist/index.js
-      - health
   initialDelaySeconds: 10
   periodSeconds: 10
   timeoutSeconds: 5
