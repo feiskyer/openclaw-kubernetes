@@ -1,0 +1,22 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile-openclaw
+provisioner: file.csi.azure.com
+allowVolumeExpansion: true
+parameters:
+  skuName: Premium_LRS
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions:
+  # Canonical permissions: 0755/uid=1024/gid=1024 for least privilege.
+  # Use 0777/uid=0/gid=0 only if app requires root or broad write access.
+  - dir_mode=0755
+  - file_mode=0755
+  - uid=1024
+  - gid=1024
+  - mfsymlinks
+  - cache=strict
+  - nosharesock
+  - actimeo=30
+  - nobrl

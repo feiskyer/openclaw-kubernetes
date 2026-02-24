@@ -230,6 +230,8 @@ See dedicated sections below for [Secrets](#secrets), [Messaging Platforms](#mes
 
 ## Persistence and data directory
 
+Persistence is enabled by default (`persistence.enabled: true`) using the cluster's default StorageClass.
+
 <details>
 <summary>Storage configuration details</summary>
 
@@ -239,6 +241,40 @@ See dedicated sections below for [Secrets](#secrets), [Messaging Platforms](#mes
 - When `persistence.enabled` is `false`, an `emptyDir` volume is used instead of a PVC.
 - To use a pre-provisioned volume, set `persistence.existingClaim`.
 - LiteLLM has its own PVC (`litellm.persistence.*`) mounted at `~/.config/litellm`.
+
+</details>
+
+<details>
+<summary>Azure File storage (permission fix)</summary>
+
+Azure File (SMB) mounts don't support POSIX ownership natively, so the default StorageClass will cause permission errors for the non-root `vibe` user (UID 1024). Use the provided custom StorageClass that sets the correct `uid`/`gid` and file modes via mount options.
+
+1) Create the StorageClass:
+
+   ```bash
+   kubectl apply -f https://raw.githubusercontent.com/feiskyer/openclaw-kubernetes/main/examples/azurefile-storageclass.yaml
+   ```
+
+2) Install the chart with both PVs using the custom StorageClass and `ReadWriteMany` access mode:
+
+   ```bash
+   helm install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw \
+      --create-namespace --namespace openclaw \
+      --set secrets.openclawGatewayToken=$gatewayToken \
+      --set secrets.telegramBotToken=$telegramBotToken \
+      --set persistence.storageClass=azurefile-openclaw \
+      --set persistence.accessMode=ReadWriteMany \
+      --set litellm.persistence.storageClass=azurefile-openclaw \
+      --set litellm.persistence.accessMode=ReadWriteMany
+   ```
+
+The StorageClass configures:
+
+- `uid=1024` / `gid=1024` — matches the `vibe` user inside the container
+- `dir_mode=0755` / `file_mode=0755` — least-privilege file permissions
+- `mfsymlinks` — enables symlink support (required for node_modules)
+- `nobrl` — disables byte-range locks (avoids issues with SQLite)
+- `Premium_LRS` — premium SSD-backed Azure File shares
 
 </details>
 
