@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.15 (2026-02-24)
+
+- Switch to headed Chrome with noVNC GUI access on port 6080 (supervisord manages Xvfb, Fluxbox, x11vnc, noVNC, openclaw)
+- Fix LiteLLM API format detection to use `contains "claude"` instead of `hasPrefix`, fixing `vertex_ai/claude-*` models
+- Add `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback` to allow non-loopback gateway binding
+- Add supervisorctl socket support to entrypoint.sh
+
 ## v0.1.14 (2026-02-24)
 
 - Skip slow `chown -R` on subsequent Pod restarts in init-home container
