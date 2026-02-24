@@ -1,11 +1,16 @@
 #!/bin/sh
 set -e
 
-FIRST_RUN=false
-# Seed /home/vibe to PVC on first run
-if [ -z "$(ls -A /home-data 2>/dev/null)" ]; then
+SENTINEL="/home-data/.openclaw/.initialized"
+
+# Skip entirely if already initialized — fast restart path
+if [ -f "$SENTINEL" ]; then
+  exit 0
+fi
+
+# First run: seed /home/vibe skeleton to PVC
+if [ -z "$(ls -A /home-data 2>/dev/null)" ] || [ ! -d /home-data/.openclaw ]; then
   cp -r /home/vibe/. /home-data/
-  FIRST_RUN=true
 fi
 
 # Seed configs from ConfigMap (skip if already present)
@@ -17,7 +22,8 @@ mkdir -p /home-data/.openclaw /home-data/.codex /home-data/.claude
 [ -f /etc/openclaw/claude-settings.json ] && [ ! -f /home-data/.claude/settings.json ] && \
   cp /etc/openclaw/claude-settings.json /home-data/.claude/settings.json
 
-# Fix ownership — full recursive only on first run
-if [ "$FIRST_RUN" = true ]; then
-  chown -R 1024:1024 /home-data
-fi
+# Fix ownership (only on first run)
+chown -R 1024:1024 /home-data
+
+# Mark as initialized — subsequent restarts skip everything
+touch "$SENTINEL"
