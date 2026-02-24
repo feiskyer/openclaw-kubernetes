@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.12 (2026-02-24)
+
+- Remove unused probe exec.command and relax liveness probe timing
+- Add Azure File StorageClass example and persistence docs
+- Add version bump steps to CLAUDE.md
+
 ## v0.1.11 (2026-02-12)
 
 - Fix sudo permission issues
