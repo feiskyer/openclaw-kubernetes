@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.18 (2026-02-26)
+
+- Use ConfigMap for codex and claude configs instead of baked-in image files; init container seeds `codex-config.toml` and `claude-settings.json` from ConfigMap on every pod start
+- Set WORKDIR to `/home/vibe` and update codex config defaults
+- Fix embedding API base URL in README
+
 ## v0.1.17 (2026-02-25)
 
 - Fix memory search credential exposure — move embedding `apiKey`, `apiBase`, and `provider` from `openclaw.memorySearch.*` (ConfigMap) into `litellm.secrets.embeddingApiKey/embeddingApiBase/embeddingProvider` (LiteLLM Secret); `openclaw.json` now points at the LiteLLM service URL with a dummy key
