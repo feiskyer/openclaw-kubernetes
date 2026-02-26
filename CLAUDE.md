@@ -41,7 +41,7 @@ All lint/test scripts pass `--set secrets.openclawGatewayToken=lint-token` autom
 Follow these steps to release a new chart version:
 
 1. **Update chart version** — Bump `version` in `Chart.yaml` (e.g., `0.1.11` → `0.1.12`).
-2. **Update changelog** — Compare commits since the last version tag (`git log v<previous>..HEAD --oneline`) and add a summary to `CHANGELOG.md` following the existing format (date, bullet points describing changes).
+2. **Update changelog** — Run `git log v<previous>..HEAD --oneline` to list all commits since the last version tag. For any merge commits (e.g., `Merge pull request #N`), also inspect the individual commits they brought in (`git log v<previous>..HEAD --oneline` will include them). Ensure every non-version-bump commit — including those introduced via merged PRs — is reflected in `CHANGELOG.md`. Add a summary following the existing format (date, bullet points describing changes).
 3. **Commit** — Stage `Chart.yaml` and `CHANGELOG.md`, commit with message `chore: bump chart version to <new-version>`.
 4. **Tag** — Create an annotated tag: `git tag v<new-version>`.
 5. **Push** — Ask the user whether to push the main branch and new tag (`git push origin main && git push origin v<new-version>`).
