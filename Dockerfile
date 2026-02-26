@@ -111,8 +111,6 @@ RUN curl -fsSL https://claude.ai/install.sh | bash && \
 
 # Copy default local configs
 RUN mkdir -p /home/vibe/.codex /home/vibe/.kube
-COPY --chown=vibe:vibe configs/codex-config.toml /home/vibe/.codex/config.toml
-COPY --chown=vibe:vibe configs/claude-settings.json /home/vibe/.claude/settings.json
 COPY --chown=vibe:vibe configs/kubeconfig /home/vibe/.kube/config
 
 # Virtual display environment for headed Chrome
