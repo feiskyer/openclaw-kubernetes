@@ -4,6 +4,8 @@
 
 - Remove `helm.sh/resource-policy: keep` annotation from both secret templates so secrets follow normal Helm lifecycle
 - Make openclaw secret annotations conditional on `.Values.secrets.annotations` being set
+- Auto-launch Chrome as a supervised process on virtual display for noVNC; Chrome runs with remote debugging port 18800 for CDP attachment
+- Switch liveness/readiness/startup probes from exec to httpGet on `/health`; remove `nginx.ingress.kubernetes.io/configuration-snippet` from default ingress values (disabled by default in nginx ingress controller)
 
 ## v0.1.18 (2026-02-26)
 
