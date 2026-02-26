@@ -40,6 +40,17 @@ serviceAccount:
   # When set, automounts the service account token automatically.
   role: "view"
 
+# -- Azure Workload Identity configuration
+# Enables Azure AD workload identity for the pod, allowing passwordless
+# access to Azure resources (Key Vault, Storage, etc.) via managed identity.
+# Requires: AKS cluster with OIDC issuer and workload identity enabled,
+# plus a federated credential linking the managed identity to this service account.
+azureWorkloadIdentity:
+  # -- Enable Azure Workload Identity
+  enabled: false
+  # -- Client ID of the User-Assigned Managed Identity
+  clientId: ""
+
 # -- Pod annotations
 podAnnotations: {}
 
@@ -108,8 +119,12 @@ novnc:
   ingress:
     # -- Enable noVNC ingress routes (requires ingress.enabled)
     # Creates two additional ingress resources:
-    #   1. Web assets: <pathPrefix>/* -> websockify web server (port 6080)
+    #   1. Web assets: <pathPrefix>/(.*) -> rewrite to /$1 on port 6080
     #   2. WebSocket: /websockify -> websockify (port 6080)
+    # Note: path rewriting uses nginx.ingress.kubernetes.io/rewrite-target,
+    # which requires the nginx ingress controller. Other controllers (Traefik,
+    # HAProxy, etc.) need different rewrite mechanisms and are not supported
+    # out of the box.
     enabled: false
     # -- URL path prefix for the noVNC web UI (e.g. /vnc/vnc.html)
     pathPrefix: /vnc

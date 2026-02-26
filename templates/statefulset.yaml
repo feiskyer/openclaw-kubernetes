@@ -24,6 +24,9 @@ spec:
         {{- end }}
       labels:
         {{- include "openclaw.selectorLabels" . | nindent 8 }}
+        {{- if .Values.azureWorkloadIdentity.enabled }}
+        azure.workload.identity/use: "true"
+        {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -31,7 +34,7 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "openclaw.serviceAccountName" . }}
       # Auto-mount token when serviceAccount.role is set for kubectl access
-      automountServiceAccountToken: {{ not (empty .Values.serviceAccount.role) }}
+      automountServiceAccountToken: {{ or (not (empty .Values.serviceAccount.role)) .Values.azureWorkloadIdentity.enabled }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
