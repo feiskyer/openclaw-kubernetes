@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.22 (2026-02-28)
+
+- Add built-in skills support: ship `claude-skill` and `codex-skill` in the container image at `~/.openclaw/skills/`, teaching the OpenClaw agent how to operate Claude Code and Codex CLI as managed coding sub-agents
+- Update init script to seed new built-in skills to PVC on every pod start without overwriting existing or user-customized skills
+- Document skills in README (included skills, upgrade behavior, adding custom skills) and add `skills/README.md` with skill structure and authoring guide
+
 ## v0.1.21 (2026-02-27)
 
 - Pin npm packages in Dockerfile: `openclaw@2026.2.26`, `clawhub@0.7.0` with ARG declarations for build-time overrides
