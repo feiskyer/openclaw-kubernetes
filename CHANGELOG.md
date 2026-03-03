@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.1.24 (2026-03-03)
+
+- Add ttyd web-based terminal: install ttyd binary (pinned v1.7.7, multi-arch x86_64/aarch64) in Docker image, run as conditional supervisord process with `--base-path` synced to values, expose via Service port and optional Ingress; enabled by default (cluster-internal only), ingress requires explicit opt-in
+- Switch readinessProbe to `/ready` endpoint (previously `/health`)
+- Set Slack `replyToMode` to `"all"` when Slack channel is enabled
+- Add `openclaw.dmAccess` config for per-channel DM policy and `allowFrom` user filtering
+- Bump openclaw npm package to 2026.3.1
+- Add `CLAWHUB_WORKDIR` env var to Dockerfile
+- Bump LiteLLM image to `main-v1.81.12-stable.2`
+- Bump Node base image from 24-slim to 25-slim
+- Bump CI dependencies: actions/checkout v6, docker/build-push-action v6.19.2, docker/login-action v3.7.0, docker/metadata-action v5.10.0, docker/setup-buildx-action v3.12.0
+- Add Dependabot configuration for GitHub Actions and Docker dependencies
+- Fix publish-chart workflow to trigger only on version tag pushes
+- Fix Docker validation workflow by adding build cache
+- Add manual dependency bump guide to CLAUDE.md
+
 ## v0.1.23 (2026-02-28)
 
 - Fix init script breaking first-run PVC seeding: skills sync before sentinel check created `.openclaw/` early, causing the skeleton copy (`cp -r /home/vibe/. /home-data/`) to be skipped — resulting in missing `.zshrc`, `claude` CLI, and other dotfiles; moved skills sync inside the sentinel block so it only runs on subsequent boots
