@@ -431,6 +431,58 @@
               }
             }
           }
+        },
+        "dmAccess": {
+          "type": "object",
+          "description": "DM access control for messaging channels",
+          "properties": {
+            "policy": {
+              "type": "string",
+              "description": "Default DM policy for all enabled channels",
+              "enum": ["pairing", "allowlist", "open", "disabled"],
+              "default": "pairing"
+            },
+            "allowFrom": {
+              "type": "object",
+              "description": "Per-channel DM allow lists (pre-approved user IDs)",
+              "properties": {
+                "slack": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Slack user IDs (e.g. U0C8DG5A5)",
+                  "default": []
+                },
+                "telegram": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Telegram user IDs (e.g. tg:123456789)",
+                  "default": []
+                },
+                "discord": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Discord user IDs",
+                  "default": []
+                },
+                "feishu": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Feishu user IDs",
+                  "default": []
+                },
+                "msteams": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "MS Teams user IDs",
+                  "default": []
+                }
+              },
+              "additionalProperties": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
         }
       }
     },

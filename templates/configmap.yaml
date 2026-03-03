@@ -115,6 +115,22 @@ data:
     {{- $_ := set $telegram "tokenFile" .Values.secrets.telegramTokenFile }}
     {{- end }}
     {{- $_ := set $channels "telegram" $telegram }}
+    {{- /* Apply DM access control (dmPolicy + allowFrom) to enabled channels.
+       When policy differs from default ("pairing"), set dmPolicy explicitly.
+       When allowFrom is non-empty, set both dmPolicy and allowFrom. */}}
+    {{- $dmPolicy := dig "dmAccess" "policy" "pairing" .Values.openclaw }}
+    {{- $dmAllowFrom := dig "dmAccess" "allowFrom" (dict) .Values.openclaw }}
+    {{- range $chName := list "slack" "telegram" "discord" "feishu" "msteams" }}
+    {{- $chAllowFrom := dig $chName (list) $dmAllowFrom }}
+    {{- if or $chAllowFrom (and (ne $dmPolicy "pairing") (hasKey $pluginEntries $chName)) }}
+    {{- $chConf := dig $chName (dict) $channels }}
+    {{- $_ := set $chConf "dmPolicy" $dmPolicy }}
+    {{- if $chAllowFrom }}
+    {{- $_ := set $chConf "allowFrom" $chAllowFrom }}
+    {{- end }}
+    {{- $_ := set $channels $chName $chConf }}
+    {{- end }}
+    {{- end }}
     {{- $_ := set $config "channels" $channels }}
 {{ $config | toPrettyJson | indent 4 }}
   codex-config.toml: |

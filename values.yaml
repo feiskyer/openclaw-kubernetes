@@ -245,6 +245,29 @@ openclaw:
         openclaw:
           cdpPort: 18800
           color: "#FF4500"
+  # -- DM access control for messaging channels.
+  # Controls who can send direct messages to the bot.
+  dmAccess:
+    # -- Default DM policy applied to all enabled channels.
+    # Options: pairing (default), allowlist, open, disabled.
+    # Only applied when different from default ("pairing") or when
+    # allowFrom is non-empty for a channel.
+    policy: "pairing"
+    # -- Per-channel DM allow lists. Users listed here are pre-approved
+    # for DM access and bypass the manual pairing approval flow.
+    # Use platform-specific user identifiers.
+    allowFrom:
+      # -- Slack user IDs (e.g. ["U0C8DG5A5", "U053FP6RAMA"])
+      slack: []
+      # -- Telegram user IDs (e.g. ["tg:123456789", "@username"])
+      telegram: []
+      # -- Discord user IDs (e.g. ["123456789012345678"])
+      discord: []
+      # -- Feishu user IDs
+      feishu: []
+      # -- MS Teams user IDs
+      msteams: []
+
   # -- Memory search configuration (semantic search over conversation history)
   # Only enabled when litellm.enabled and litellm.secrets.embeddingApiKey are set.
   # Credentials are kept in the LiteLLM Secret; openclaw.json only sees the
