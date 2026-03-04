@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.27 (2026-03-04)
+
+- Add external skills loading via PVC/NFS volumes: new `openclaw.skills.volumes` convenience field mounts volumes and auto-wires their paths into `skills.load.extraDirs` in `openclaw.json`; support `openclaw.skills.load.extraDirs/watch/watchDebounceMs` for fine-grained control; add Azure Blob NFS example manifests
+- Add dmAccess examples for Telegram and Slack in README
+- Bump openclaw npm package to 2026.3.2
+- Bump LiteLLM image to `main-v1.81.14-stable`
+
 ## v0.1.26 (2026-03-03)
 
 - Add optional NetworkPolicy for OpenClaw and LiteLLM pods that blocks egress to cloud IMDS (169.254.169.254) while allowing all other traffic; disabled by default (`networkPolicy.enabled: false`)

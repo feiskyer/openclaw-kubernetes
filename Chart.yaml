@@ -13,8 +13,8 @@ name: openclaw
 sources:
 - https://github.com/feiskyer/openclaw-kubernetes
 type: application
-version: 0.1.26
-appVersion: 0.1.26
+version: 0.1.27
+appVersion: 0.1.27
 maintainers:
   - name: feiskyer
     url: https://github.com/feiskyer
