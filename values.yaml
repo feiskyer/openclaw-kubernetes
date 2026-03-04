@@ -380,7 +380,7 @@ litellm:
   # -- LiteLLM image configuration
   image:
     repository: ghcr.io/berriai/litellm
-    tag: main-v1.81.12-stable.2
+    tag: main-v1.81.14-stable
     pullPolicy: IfNotPresent
   # -- Service configuration
   service:
