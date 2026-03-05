@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.1.28 (2026-03-05)
+
+- Add optional Tailscale mesh VPN support: install tailscaled/tailscale binaries in Docker image, run as conditional supervisord processes, register each pod as a unique Tailscale device with configurable hostname, optional HTTPS proxy via `tailscale serve`, and emptyDir state for re-authentication on restart
+- Switch Tailscale to kernel networking by default (`tailscale.userspace: false`)
+- Disable device auth (`dangerouslyDisableDeviceAuth`) for Control UI when Tailscale is enabled, allowing access over the trusted Tailscale network
+- Enable partial streaming for Telegram responses
+- Add `permissions` to code scanning workflow
+- Bump docker/login-action from 3.7.0 to 4.0.0
+
 ## v0.1.27 (2026-03-04)
 
 - Add external skills loading via PVC/NFS volumes: new `openclaw.skills.volumes` convenience field mounts volumes and auto-wires their paths into `skills.load.extraDirs` in `openclaw.json`; support `openclaw.skills.load.extraDirs/watch/watchDebounceMs` for fine-grained control; add Azure Blob NFS example manifests
