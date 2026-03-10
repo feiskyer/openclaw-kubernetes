@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.29 (2026-03-10)
+
+- Add ACP agent support with bundled acpx plugin: register plugin and pre-install npm deps in Docker image, render full ACP config (dispatch, allowedAgents, maxConcurrentSessions, stream, runtime) and acpx plugin settings (permissionMode, nonInteractivePermissions, plugins.allow/installs/load) into openclaw.json, seed `~/.acpx/config.json` with per-agent command overrides (codex-acp adapter), add `model` field to claude settings.json for claude-agent-acp compatibility
+- Set tools.profile to `full` by default so coding/system tools are always available
+- Bump openclaw npm package to 2026.3.8
+
 ## v0.1.28 (2026-03-05)
 
 - Add optional Tailscale mesh VPN support: install tailscaled/tailscale binaries in Docker image, run as conditional supervisord processes, register each pod as a unique Tailscale device with configurable hostname, optional HTTPS proxy via `tailscale serve`, and emptyDir state for re-authentication on restart
