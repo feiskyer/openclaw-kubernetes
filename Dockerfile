@@ -123,6 +123,13 @@ RUN npm install -g @openai/codex openclaw@${OPENCLAW_VERSION} clawhub@${CLAWHUB_
 # Install uv via official installer
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Register ACPX plugin and install its npm deps so the gateway skips plugin-local install.
+# Remove the generated openclaw.json so it doesn't conflict with our ConfigMap-rendered version.
+RUN openclaw plugins install acpx && \
+    rm -f /home/vibe/.openclaw/openclaw.json && \
+    cd /usr/local/share/npm-global/lib/node_modules/openclaw/extensions/acpx && npm install --omit=dev && \
+    ln -sf /usr/local/share/npm-global/lib/node_modules/openclaw/extensions/acpx/node_modules/.bin/acpx /usr/local/share/npm-global/bin/acpx
+
 # Install Claude Code (installs into ~/.local/bin, adds config into existing ~/.claude/)
 RUN curl -fsSL https://claude.ai/install.sh | bash && \
     if [ -f ~/.claude.json ]; then \

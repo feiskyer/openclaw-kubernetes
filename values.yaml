@@ -322,6 +322,43 @@ openclaw:
     # -- Extra paths to index for memory search
     extraPaths: []
 
+  # -- ACPX plugin configuration (Agent Communication Protocol eXtensions).
+  # acpx is bundled with openclaw — no separate installation needed.
+  # See https://docs.openclaw.ai/tools/acp-agents for full documentation.
+  acpx:
+    # -- Enable ACPX plugin and ACP configuration
+    enabled: true
+    # -- ACP dispatch configuration (enables agent-to-agent communication)
+    dispatch:
+      enabled: true
+    # -- ACP backend implementation
+    backend: "acpx"
+    # -- Default agent for ACP requests
+    defaultAgent: "claude"
+    # -- Agents allowed for ACP sessions
+    allowedAgents:
+      - claude
+      - codex
+    # -- Maximum number of concurrent ACP sessions
+    maxConcurrentSessions: 8
+    # -- Stream coalescing settings for real-time output
+    stream:
+      coalesceIdleMs: 300
+      maxChunkChars: 1200
+    # -- Session runtime defaults
+    runtime:
+      ttlMinutes: 120
+    # -- ACPX plugin permission mode (approve-all, approve-reads, or deny-all)
+    permissionMode: "approve-all"
+    # -- How to handle permission prompts without a TTY (fail or deny).
+    # "deny" allows graceful degradation; "fail" aborts the session on prompts.
+    nonInteractivePermissions: "deny"
+    # -- Per-agent command overrides for ~/.acpx/config.json.
+    # Use this to pin specific ACP adapter packages or custom commands.
+    agents:
+      codex:
+        command: "npx @zed-industries/codex-acp@0.9.2"
+
   # -- External skills loading configuration.
   # Load additional skills from directories outside the default paths.
   skills:

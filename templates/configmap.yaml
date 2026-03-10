@@ -84,6 +84,7 @@ data:
     {{- $_ := set $config "tools" $tools }}
     {{- /* Auto-enable channel plugins when bot tokens are configured */}}
     {{- $pluginEntries := dict }}
+    {{- $pluginsAllow := list }}
     {{- if .Values.secrets.telegramBotToken }}
     {{- $_ := set $pluginEntries "telegram" (dict "enabled" true) }}
     {{- end }}
@@ -99,8 +100,49 @@ data:
     {{- if and .Values.secrets.msteamsAppId .Values.secrets.msteamsAppPassword }}
     {{- $_ := set $pluginEntries "msteams" (dict "enabled" true) }}
     {{- end }}
+    {{- /* Enable ACPX plugin when acpx.enabled is true */}}
+    {{- if .Values.openclaw.acpx.enabled }}
+    {{- $acpxConfig := dict
+      "permissionMode" .Values.openclaw.acpx.permissionMode
+      "nonInteractivePermissions" .Values.openclaw.acpx.nonInteractivePermissions
+    }}
+    {{- $_ := set $pluginEntries "acpx" (dict "enabled" true "config" $acpxConfig) }}
+    {{- /* Explicitly allow the acpx plugin to suppress non-bundled plugin warnings */}}
+    {{- $pluginsAllow = append $pluginsAllow "acpx" }}
+    {{- $acp := dict
+      "enabled" true
+      "dispatch" (dict "enabled" .Values.openclaw.acpx.dispatch.enabled)
+      "backend" .Values.openclaw.acpx.backend
+      "defaultAgent" .Values.openclaw.acpx.defaultAgent
+      "allowedAgents" .Values.openclaw.acpx.allowedAgents
+      "maxConcurrentSessions" (.Values.openclaw.acpx.maxConcurrentSessions | int)
+      "stream" (dict
+        "coalesceIdleMs" (.Values.openclaw.acpx.stream.coalesceIdleMs | int)
+        "maxChunkChars" (.Values.openclaw.acpx.stream.maxChunkChars | int)
+      )
+      "runtime" (dict
+        "ttlMinutes" (.Values.openclaw.acpx.runtime.ttlMinutes | int)
+      )
+    }}
+    {{- $_ := set $config "acp" $acp }}
+    {{- end }}
     {{- if $pluginEntries }}
-    {{- $_ := set $config "plugins" (dict "entries" $pluginEntries) }}
+    {{- $pluginsDict := dict "entries" $pluginEntries }}
+    {{- if $pluginsAllow }}
+    {{- $_ := set $pluginsDict "allow" $pluginsAllow }}
+    {{- end }}
+    {{- /* Register bundled acpx plugin path so the gateway loads it without re-discovery */}}
+    {{- if .Values.openclaw.acpx.enabled }}
+    {{- $acpxPath := "/usr/local/share/npm-global/lib/node_modules/openclaw/extensions/acpx" }}
+    {{- $_ := set $pluginsDict "load" (dict "paths" (list $acpxPath)) }}
+    {{- $_ := set $pluginsDict "installs" (dict "acpx" (dict
+      "source" "path"
+      "spec" "acpx"
+      "sourcePath" $acpxPath
+      "installPath" $acpxPath
+    )) }}
+    {{- end }}
+    {{- $_ := set $config "plugins" $pluginsDict }}
     {{- end }}
     {{- /* Fix Telegram connectivity on dual-stack (IPv4+IPv6) clusters.
        Node 22+ enables Happy Eyeballs (autoSelectFamily) by default, which
@@ -208,6 +250,7 @@ data:
         "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
         "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
       },
+      "model": {{ .Values.litellm.model | quote }},
       "alwaysThinkingEnabled": true,
       "permissions": {
         "allow": [
@@ -244,5 +287,13 @@ data:
         ]
       }
     }
+  {{- if .Values.openclaw.acpx.enabled }}
+  acpx-config.json: |
+    {{- $acpxAgents := dict }}
+    {{- range $name, $agent := .Values.openclaw.acpx.agents }}
+    {{- $_ := set $acpxAgents $name $agent }}
+    {{- end }}
+{{ dict "agents" $acpxAgents | toPrettyJson | indent 4 }}
+  {{- end }}
   init-home.sh: |
 {{ .Files.Get "configs/init-home.sh" | indent 4 }}
