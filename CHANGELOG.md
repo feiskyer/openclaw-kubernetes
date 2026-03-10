@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.30 (2026-03-10)
+
+- Bump LiteLLM image to `main-1.81.12-stable.3`
+- Enable network access in Codex sandbox_workspace_write mode
+- Add sessions.visibility=all to tools config
+
 ## v0.1.29 (2026-03-10)
 
 - Add ACP agent support with bundled acpx plugin: register plugin and pre-install npm deps in Docker image, render full ACP config (dispatch, allowedAgents, maxConcurrentSessions, stream, runtime) and acpx plugin settings (permissionMode, nonInteractivePermissions, plugins.allow/installs/load) into openclaw.json, seed `~/.acpx/config.json` with per-agent command overrides (codex-acp adapter), add `model` field to claude settings.json for claude-agent-acp compatibility
