@@ -432,6 +432,23 @@
             }
           }
         },
+        "git": {
+          "type": "object",
+          "description": "Git credential configuration",
+          "properties": {
+            "azureDevOps": {
+              "type": "object",
+              "description": "Azure DevOps git credential helper configuration",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable Azure DevOps git credential helper (uses az CLI for tokens)",
+                  "default": true
+                }
+              }
+            }
+          }
+        },
         "dmAccess": {
           "type": "object",
           "description": "DM access control for messaging channels",

@@ -360,6 +360,15 @@ openclaw:
       codex:
         command: "npx @zed-industries/codex-acp@0.9.2"
 
+  # -- Git credential configuration for Azure DevOps.
+  # When enabled, the init container installs a credential helper script
+  # that fetches Azure DevOps tokens via Azure CLI (`az account get-access-token`).
+  # Users must run `az login` before git operations will work.
+  git:
+    azureDevOps:
+      # -- Enable Azure DevOps git credential helper
+      enabled: true
+
   # -- External skills loading configuration.
   # Load additional skills from directories outside the default paths.
   skills:
