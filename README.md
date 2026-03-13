@@ -882,9 +882,9 @@ This Helm chart deploys [OpenClaw](https://openclaw.ai/), an open-source persona
 </details>
 
 <details>
-<summary>Original Helm Chart PR</summary>
+<summary>Official Kubernetes Guide</summary>
 
-This chart is forked from [openclaw/openclaw#2562](https://github.com/openclaw/openclaw/pull/2562/). The original PR was not accepted upstream, so this repository continues the work with further improvements. Thanks to the original author for the initial draft.
+For a non-Helm approach to deploying OpenClaw on Kubernetes, see the [official Kubernetes guide](http://docs.openclaw.ai/install/kubernetes).
 
 </details>
 
