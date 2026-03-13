@@ -90,6 +90,9 @@ data:
     {{- if kindIs "string" . }}
     {{- $extraName = . }}
     {{- else }}
+    {{- if not .model_name }}
+    {{- fail "litellm.extraModels map-style entries must set model_name" }}
+    {{- end }}
     {{- $extraName = .model_name }}
     {{- $extraInfo = .model_info | default dict }}
     {{- end }}
