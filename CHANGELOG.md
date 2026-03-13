@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.32 (2026-03-13)
+
+- Fix pre-upgrade hook StartError: use the gateway image instead of distroless `registry.k8s.io/kubectl` which lacks `/bin/sh`
+- Bump openclaw npm package to 2026.3.12
+- Fix volumeClaimTemplate labels: use `selectorLabels` instead of full `labels` to avoid version-dependent labels that cause immutable field conflicts on upgrades
+
 ## v0.1.31 (2026-03-12)
 
 - Enable GitHub Copilot embeddings for memory search: add `text-embedding-ada-002` model to LiteLLM config for Copilot provider, override default embedding model in OpenClaw config since Copilot only supports `text-embedding-ada-002`
