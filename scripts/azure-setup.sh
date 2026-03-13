@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
 # Azure setup script for OpenClaw Kubernetes
 #
@@ -42,6 +42,7 @@
 #   NODE_COUNT            Number of nodes (default: 1)
 #   K8S_VERSION           Kubernetes version (default: latest stable)
 #   SKIP_CLUSTER          Skip AKS creation, deploy to current context (default: false)
+#   RELEASE_NAME          Helm release name (default: openclaw)
 #   WORKLOAD_IDENTITY     Enable Azure Workload Identity (default: false)
 #   WORKLOAD_IDENTITY_ROLE Role for the managed identity (default: Contributor)
 #   WORKLOAD_IDENTITY_SCOPE Resource ID scope for role assignment (required if WORKLOAD_IDENTITY=true)
@@ -106,6 +107,7 @@ WORKLOAD_IDENTITY="${WORKLOAD_IDENTITY:-false}"
 WORKLOAD_IDENTITY_ROLE="${WORKLOAD_IDENTITY_ROLE:-Contributor}"
 WORKLOAD_IDENTITY_SCOPE="${WORKLOAD_IDENTITY_SCOPE:-}"
 NAMESPACE="openclaw"
+RELEASE_NAME="${RELEASE_NAME:-openclaw}"
 
 GATEWAY_TOKEN="${GATEWAY_TOKEN:-}"
 TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
@@ -150,6 +152,7 @@ check_tool() {
       az)   echo "  Install: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli" ;;
       helm) echo "  Install: https://helm.sh/docs/intro/install/" ;;
       kubectl) echo "  Install: https://kubernetes.io/docs/tasks/tools/" ;;
+      openssl) echo "  Install: https://www.openssl.org/ (or install via package manager)" ;;
     esac
     exit 1
   fi
@@ -160,6 +163,7 @@ check_tool() {
 log "Checking prerequisites..."
 check_tool helm
 check_tool kubectl
+check_tool openssl
 
 if [ "$SKIP_CLUSTER" != "true" ]; then
   check_tool az
@@ -270,7 +274,7 @@ if [ "$SKIP_CLUSTER" != "true" ]; then
     log "Creating federated credential..."
     FEDERATION_NAME="${CLUSTER_NAME}-openclaw-federation"
     # Determine the service account name Helm will create
-    SA_NAME="${CLUSTER_NAME}"  # Helm default: release name
+    SA_NAME="${RELEASE_NAME}"  # Helm default: release name
     run az identity federated-credential create \
       --name "$FEDERATION_NAME" \
       --identity-name "$IDENTITY_NAME" \
@@ -292,7 +296,7 @@ if [ "$SKIP_CLUSTER" != "true" ]; then
         --output none
     else
       warn "WORKLOAD_IDENTITY_SCOPE not set — skipping role assignment"
-      warn "You must assign roles manually: az role assignment create --assignee $IDENTITY_CLIENT_ID --role <role> --scope <scope>"
+      warn "You must assign roles manually: az role assignment create --assignee-object-id <principal-id> --assignee-principal-type ServicePrincipal --role <role> --scope <scope>"
     fi
   fi
 else
@@ -326,6 +330,30 @@ mountOptions:
   - nobrl
 EOF
 
+log "Creating Azure File StorageClass for LiteLLM (azurefile-litellm)..."
+run kubectl apply -f - <<'EOF'
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile-litellm
+provisioner: file.csi.azure.com
+allowVolumeExpansion: true
+parameters:
+  skuName: Premium_LRS
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions:
+  - dir_mode=0755
+  - file_mode=0755
+  - uid=1000
+  - gid=1000
+  - mfsymlinks
+  - cache=strict
+  - nosharesock
+  - actimeo=30
+  - nobrl
+EOF
+
 # ── Step 3: Build Helm values ────────────────────────────────────────────────
 
 log "Building Helm install command..."
@@ -337,7 +365,7 @@ HELM_SETS=(
   --set "persistence.storageClass=azurefile-openclaw"
   --set "persistence.accessMode=ReadWriteMany"
   --set "persistence.size=$PERSISTENCE_SIZE"
-  --set "litellm.persistence.storageClass=azurefile-openclaw"
+  --set "litellm.persistence.storageClass=azurefile-litellm"
   --set "litellm.persistence.accessMode=ReadWriteMany"
   --set "litellm.model=$LITELLM_MODEL"
   --set "litellm.secrets.provider=$LITELLM_PROVIDER"
@@ -379,10 +407,10 @@ fi
 
 if [ "$CHART_SOURCE" = "local" ]; then
   info "Installing from local chart: $PROJECT_ROOT"
-  run helm upgrade --install openclaw "$PROJECT_ROOT" "${HELM_SETS[@]}"
+  run helm upgrade --install "$RELEASE_NAME" "$PROJECT_ROOT" "${HELM_SETS[@]}"
 else
   info "Installing from OCI registry"
-  run helm upgrade --install openclaw oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw "${HELM_SETS[@]}"
+  run helm upgrade --install "$RELEASE_NAME" oci://ghcr.io/feiskyer/openclaw-kubernetes/openclaw "${HELM_SETS[@]}"
 fi
 
 # ── Step 5: Wait for rollout ─────────────────────────────────────────────────

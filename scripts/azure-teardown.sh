@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
 # Azure teardown script for OpenClaw Kubernetes
 #
@@ -46,6 +46,7 @@ RESOURCE_GROUP="${RESOURCE_GROUP:-openclaw-rg}"
 CLUSTER_NAME="${CLUSTER_NAME:-openclaw}"
 SUBSCRIPTION="${SUBSCRIPTION:-}"
 NAMESPACE="openclaw"
+RELEASE_NAME="${RELEASE_NAME:-openclaw}"
 DELETE_CLUSTER="${DELETE_CLUSTER:-false}"
 DRY_RUN="${DRY_RUN:-false}"
 
@@ -76,7 +77,7 @@ fi
 # ── Step 1: Uninstall Helm release ──────────────────────────────────────────
 
 log "Uninstalling OpenClaw Helm release..."
-run helm uninstall openclaw --namespace "$NAMESPACE" 2>/dev/null || warn "Release 'openclaw' not found (already uninstalled?)"
+run helm uninstall "$RELEASE_NAME" --namespace "$NAMESPACE" 2>/dev/null || warn "Release '$RELEASE_NAME' not found (already uninstalled?)"
 
 # ── Step 2: Clean up namespace ──────────────────────────────────────────────
 
@@ -98,9 +99,10 @@ if [ "$DRY_RUN" != "true" ]; then
   fi
 fi
 
-# Delete StorageClass
-log "Deleting Azure File StorageClass..."
+# Delete StorageClasses
+log "Deleting Azure File StorageClasses..."
 run kubectl delete storageclass azurefile-openclaw 2>/dev/null || true
+run kubectl delete storageclass azurefile-litellm 2>/dev/null || true
 
 # Delete namespace if empty
 if [ "$DRY_RUN" != "true" ]; then
