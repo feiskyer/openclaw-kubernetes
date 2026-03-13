@@ -469,8 +469,19 @@ litellm:
     requests:
       cpu: 100m
       memory: 256Mi
-  # -- Model to proxy through LiteLLM
+  # -- Primary model to proxy through LiteLLM (used as the default agent model)
   model: claude-opus-4.6
+  # -- Additional models to register in LiteLLM, allowing model switching
+  # without redeploying. Each entry can be a simple model name string or
+  # a map with model_name and optional model_info fields.
+  # Examples:
+  #   extraModels:
+  #     - claude-sonnet-4-20250514
+  #     - gpt-4.1
+  #     - model_name: o3
+  #       model_info:
+  #         mode: responses
+  extraModels: []
   # -- LiteLLM provider and credentials
   secrets:
     # -- Model provider: github_copilot, anthropic, or openai
