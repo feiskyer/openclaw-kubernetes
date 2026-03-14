@@ -469,8 +469,37 @@ litellm:
     requests:
       cpu: 100m
       memory: 256Mi
-  # -- Model to proxy through LiteLLM
+  # -- Primary model to proxy through LiteLLM (used as the default agent model)
   model: claude-opus-4.6
+  # -- Additional models to register in LiteLLM, allowing model switching
+  # without redeploying. Each entry can be a simple model name string or
+  # a map with model_name and optional model_info fields.
+  #
+  # IMPORTANT: The OpenClaw gateway infers the provider API format
+  # (e.g., anthropic-messages vs openai-responses vs openai-completions)
+  # from `litellm.model`, and that single format will be used when
+  # switching to any `extraModels` at runtime.
+  # Therefore, all entries in `extraModels` MUST be compatible with the
+  # API format implied by the primary `litellm.model`.
+  #
+  # In particular, avoid mixing Anthropic-style `claude*` models with
+  # OpenAI-style `gpt*`/`o*` models in the same deployment unless your
+  # OpenClaw gateway is explicitly configured to handle both formats.
+  #
+  # Examples (Anthropic-only, consistent with the default `model` above):
+  #   extraModels:
+  #     - claude-sonnet-4.1
+  #     - claude-haiku-4.1
+  #
+  # Example (OpenAI-only; if you change `model` to an OpenAI model):
+  #   model: gpt-4.1
+  #   extraModels:
+  #     - gpt-4.1-mini
+  #     - gpt-4o
+  #     - model_name: o3-mini
+  #       model_info:
+  #         mode: responses
+  extraModels: []
   # -- LiteLLM provider and credentials
   secrets:
     # -- Model provider: github_copilot, anthropic, or openai
