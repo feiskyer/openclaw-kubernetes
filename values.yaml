@@ -465,7 +465,7 @@ litellm:
   # -- LiteLLM image configuration
   image:
     repository: ghcr.io/berriai/litellm
-    tag: v1.82.3-stable
+    tag: 1.83.3
     pullPolicy: IfNotPresent
   # -- Service configuration
   service:
