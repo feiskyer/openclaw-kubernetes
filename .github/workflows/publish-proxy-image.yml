@@ -1,0 +1,48 @@
+name: Publish Proxy Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      litellm_tag:
+        description: "LiteLLM image tag (e.g. v1.83.3-stable)"
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  SOURCE_IMAGE: ghcr.io/berriai/litellm
+  TARGET_IMAGE: ghcr.io/${{ github.repository_owner }}/openclaw-proxy
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Compute target tag
+        id: tag
+        env:
+          SOURCE_TAG: ${{ inputs.litellm_tag }}
+        run: |
+          TARGET_TAG="${SOURCE_TAG%-stable}"
+          echo "source=$SOURCE_TAG" >> "$GITHUB_OUTPUT"
+          echo "target=$TARGET_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull, retag, and push
+        env:
+          SOURCE_TAG: ${{ steps.tag.outputs.source }}
+          TARGET_TAG: ${{ steps.tag.outputs.target }}
+        run: |
+          docker pull "${SOURCE_IMAGE}:${SOURCE_TAG}"
+          docker tag  "${SOURCE_IMAGE}:${SOURCE_TAG}" "${TARGET_IMAGE}:${TARGET_TAG}"
+          docker push "${TARGET_IMAGE}:${TARGET_TAG}"
