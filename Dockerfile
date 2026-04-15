@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.source="https://github.com/feiskyer/openclaw-kube
 LABEL org.opencontainers.image.description="All-in-one vibe coding environment"
 LABEL org.opencontainers.image.licenses="MIT"
 
-ARG OPENCLAW_VERSION=2026.3.24
+ARG OPENCLAW_VERSION=2026.4.14
 ARG CLAWHUB_VERSION=0.9.0
 ARG TTYD_VERSION=1.7.7
 ARG TAILSCALE_VERSION=1.94.2

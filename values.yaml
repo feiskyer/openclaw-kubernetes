@@ -464,8 +464,8 @@ litellm:
   replicaCount: 1
   # -- LiteLLM image configuration
   image:
-    repository: ghcr.io/berriai/litellm
-    tag: v1.82.3-stable
+    repository: ghcr.io/feiskyer/openclaw-proxy
+    tag: v1.83.3
     pullPolicy: IfNotPresent
   # -- Service configuration
   service:
